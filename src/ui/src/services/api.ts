@@ -1,0 +1,113 @@
+import { ItemType, BlockType } from '../../shared/enums';
+
+export interface ItemBloco {
+  id?: number;
+  tipo: BlockType;
+  conteudo: string;
+  ordem?: number;
+}
+
+export interface ItemColetanea {
+  id: number;
+  titulo: string;
+  tipo: ItemType;
+  blocos: ItemBloco[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ListarItensResponse {
+  itens: ItemColetanea[];
+  total: number;
+  offset: number;
+  limit: number;
+}
+
+export interface ListarItensParams {
+  q?: string;
+  tipo?: ItemType;
+  offset?: number;
+  limit?: number;
+}
+
+const API_BASE = '/api';
+
+export async function listarItens(params: ListarItensParams = {}): Promise<ListarItensResponse> {
+  const searchParams = new URLSearchParams();
+  
+  if (params.q) searchParams.set('q', params.q);
+  if (params.tipo) searchParams.set('tipo', params.tipo);
+  if (params.offset !== undefined) searchParams.set('offset', params.offset.toString());
+  if (params.limit !== undefined) searchParams.set('limit', params.limit.toString());
+  
+  const response = await fetch(`${API_BASE}/itens?${searchParams.toString()}`);
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Erro ao listar itens');
+  }
+  
+  return response.json();
+}
+
+export async function buscarItemPorId(id: number): Promise<ItemColetanea> {
+  const response = await fetch(`${API_BASE}/itens/${id}`);
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Erro ao buscar item');
+  }
+  
+  return response.json();
+}
+
+export interface CriarItemDTO {
+  titulo: string;
+  tipo: ItemType;
+  blocos: { tipo: BlockType; conteudo: string }[];
+}
+
+export async function criarItem(dados: CriarItemDTO): Promise<ItemColetanea> {
+  const response = await fetch(`${API_BASE}/itens`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(dados)
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(JSON.stringify(error));
+  }
+  
+  return response.json();
+}
+
+export async function atualizarItem(id: number, dados: Partial<CriarItemDTO>): Promise<ItemColetanea> {
+  const response = await fetch(`${API_BASE}/itens/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(dados)
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(JSON.stringify(error));
+  }
+  
+  return response.json();
+}
+
+export async function excluirItem(id: number): Promise<void> {
+  const response = await fetch(`${API_BASE}/itens/${id}`, {
+    method: 'DELETE'
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Erro ao excluir item');
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "sistema-projecao",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "src/*"
+  ],
+  "scripts": {
+    "dev:backend": "npm run dev --workspace=src/infrastructure",
+    "dev:frontend": "npm run dev --workspace=src/ui",
+    "build": "npm run build --workspaces"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
+}

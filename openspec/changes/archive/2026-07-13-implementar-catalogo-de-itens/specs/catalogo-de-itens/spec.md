@@ -1,10 +1,4 @@
-# Catálogo de Itens
-
-## Purpose
-
-Manter o acervo permanente de conteúdos litúrgicos reutilizáveis.
-
-## Requirements
+## ADDED Requirements
 
 ### Requirement: Cadastro de ItemColetanea
 
