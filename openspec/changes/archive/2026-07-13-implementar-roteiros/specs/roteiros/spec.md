@@ -1,10 +1,4 @@
-# Roteiros
-
-## Purpose
-
-Organizar os conteúdos de uma celebração em uma linha do tempo independente do catálogo permanente.
-
-## Requirements
+## ADDED Requirements
 
 ### Requirement: CRUD de Roteiro
 

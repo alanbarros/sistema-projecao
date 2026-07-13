@@ -111,3 +111,219 @@ export async function excluirItem(id: number): Promise<void> {
     throw new Error(error.error || 'Erro ao excluir item');
   }
 }
+
+export interface Roteiro {
+  id: number;
+  titulo: string;
+  descricao?: string;
+  data_celebracao?: string;
+  itens: ItemRoteiro[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ItemRoteiro {
+  id: number;
+  roteiro_id: number;
+  item_coletanea_id?: number;
+  titulo_snapshot: string;
+  tipo_snapshot: ItemType;
+  momento_liturgico?: string;
+  posicao: number;
+  is_ad_hoc: boolean;
+  marca_agua_ativa: boolean;
+  blocos: ItemRoteiroBloco[];
+  created_at: string;
+}
+
+export interface ItemRoteiroBloco {
+  id: number;
+  tipo: BlockType;
+  conteudo: string;
+  ordem: number;
+}
+
+export interface ListarRoteirosResponse {
+  roteiros: Roteiro[];
+  total: number;
+  offset: number;
+  limit: number;
+}
+
+export interface ListarRoteirosParams {
+  q?: string;
+  offset?: number;
+  limit?: number;
+}
+
+export async function listarRoteiros(params: ListarRoteirosParams = {}): Promise<ListarRoteirosResponse> {
+  const searchParams = new URLSearchParams();
+  
+  if (params.q) searchParams.set('q', params.q);
+  if (params.offset !== undefined) searchParams.set('offset', params.offset.toString());
+  if (params.limit !== undefined) searchParams.set('limit', params.limit.toString());
+  
+  const response = await fetch(`${API_BASE}/roteiros?${searchParams.toString()}`);
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Erro ao listar roteiros');
+  }
+  
+  return response.json();
+}
+
+export async function buscarRoteiroPorId(id: number): Promise<Roteiro> {
+  const response = await fetch(`${API_BASE}/roteiros/${id}`);
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Erro ao buscar roteiro');
+  }
+  
+  return response.json();
+}
+
+export interface CriarRoteiroDTO {
+  titulo: string;
+  descricao?: string;
+  data_celebracao?: string;
+}
+
+export async function criarRoteiro(dados: CriarRoteiroDTO): Promise<Roteiro> {
+  const response = await fetch(`${API_BASE}/roteiros`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(dados)
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(JSON.stringify(error));
+  }
+  
+  return response.json();
+}
+
+export async function atualizarRoteiro(id: number, dados: Partial<CriarRoteiroDTO>): Promise<Roteiro> {
+  const response = await fetch(`${API_BASE}/roteiros/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(dados)
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(JSON.stringify(error));
+  }
+  
+  return response.json();
+}
+
+export async function excluirRoteiro(id: number): Promise<void> {
+  const response = await fetch(`${API_BASE}/roteiros/${id}`, {
+    method: 'DELETE'
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Erro ao excluir roteiro');
+  }
+}
+
+export interface AdicionarItemRoteiroDTO {
+  item_coletanea_id: number;
+  momento_liturgico?: string;
+}
+
+export async function adicionarItemAoRoteiro(roteiroId: number, dados: AdicionarItemRoteiroDTO): Promise<ItemRoteiro> {
+  const response = await fetch(`${API_BASE}/roteiros/${roteiroId}/itens`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(dados)
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(JSON.stringify(error));
+  }
+  
+  return response.json();
+}
+
+export interface CriarItemAdHocDTO {
+  titulo: string;
+  tipo: ItemType;
+  blocos: { tipo: BlockType; conteudo: string }[];
+}
+
+export async function criarItemAdHoc(roteiroId: number, dados: CriarItemAdHocDTO): Promise<ItemRoteiro> {
+  const response = await fetch(`${API_BASE}/roteiros/${roteiroId}/itens/ad-hoc`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(dados)
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(JSON.stringify(error));
+  }
+  
+  return response.json();
+}
+
+export interface AtualizarItemRoteiroDTO {
+  momento_liturgico?: string | null;
+  marca_agua_ativa?: boolean;
+}
+
+export async function atualizarItemRoteiro(roteiroId: number, itemId: number, dados: AtualizarItemRoteiroDTO): Promise<ItemRoteiro> {
+  const response = await fetch(`${API_BASE}/roteiros/${roteiroId}/itens/${itemId}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(dados)
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(JSON.stringify(error));
+  }
+  
+  return response.json();
+}
+
+export async function removerItemDoRoteiro(roteiroId: number, itemId: number): Promise<void> {
+  const response = await fetch(`${API_BASE}/roteiros/${roteiroId}/itens/${itemId}`, {
+    method: 'DELETE'
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Erro ao remover item do roteiro');
+  }
+}
+
+export async function reordenarItens(roteiroId: number, itemIds: number[]): Promise<void> {
+  const response = await fetch(`${API_BASE}/roteiros/${roteiroId}/itens/reorder`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ item_ids: itemIds })
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(JSON.stringify(error));
+  }
+}

@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import { itensRouter } from './routes/itens';
+import roteirosRouter from './routes/roteiros';
 import { getRepository, closeRepository } from './database';
 
 const app = express();
@@ -10,6 +11,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use('/api/itens', itensRouter);
+app.use('/api/roteiros', roteirosRouter);
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });

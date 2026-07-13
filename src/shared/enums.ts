@@ -17,3 +17,16 @@ export enum BlockType {
 }
 
 export const BLOCK_TYPES = Object.values(BlockType);
+
+export enum MomentoLiturgico {
+  Entrada = 'Entrada',
+  Ofertorio = 'Ofertório',
+  Comunhao = 'Comunhão',
+  Preparacao = 'Preparação',
+  AtoPenitencial = 'Ato Penitencial',
+  Aclamacao = 'Aclamação',
+  OracaoDosFieis = 'Oração dos Fiéis',
+  Outro = 'Outro'
+}
+
+export const MOMENTOS_LITURGICOS = Object.values(MomentoLiturgico);

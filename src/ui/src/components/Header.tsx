@@ -10,6 +10,7 @@ export function Header() {
         <nav className="nav">
           <Link to="/" className="nav-link">Catálogo</Link>
           <Link to="/novo" className="nav-link">Novo Item</Link>
+          <Link to="/roteiros" className="nav-link">Roteiros</Link>
         </nav>
       </div>
     </header>
