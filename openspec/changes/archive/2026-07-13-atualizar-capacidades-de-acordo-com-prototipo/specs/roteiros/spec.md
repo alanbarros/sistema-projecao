@@ -1,10 +1,4 @@
-# Roteiros
-
-## Purpose
-
-Organizar os conteúdos de uma celebração em uma linha do tempo independente do catálogo permanente.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Composição e ordenação de Roteiro
 
@@ -27,14 +21,16 @@ Cada ItemRoteiro SHALL manter uma configuração própria de marca d'água para 
 - **WHEN** o operador mover um ItemRoteiro para cima ou para baixo
 - **THEN** o sistema SHALL atualizar sua posição e a ordem dos demais itens afetados
 
+## UNCHANGED Requirements
+
 ### Requirement: Itens ad-hoc do roteiro
 
-O sistema SHALL permitir criar ItemRoteiro ad-hoc diretamente em um Roteiro, sem criar ItemColetanea no catálogo.
+O requirement "Itens ad-hoc do roteiro" da spec principal é preservado sem alterações. Itens ad-hoc continuam sendo criados diretamente no Roteiro, sem vinculo ao Catalogo, e sao restritos ao Roteiro em que foram criados.
 
-Itens ad-hoc SHALL ser restritos ao Roteiro em que foram criados e poderão ser dos tipos Aviso, Resposta, Canto, Oração ou Leitura. Eles incluem usos como avisos do dia, salmos, preces e respostas temporárias.
+## REMOVED Requirements
 
-#### Scenario: Criar aviso exclusivo da celebração
+### Requirement: Propagação de alterações do catálogo
 
-- **WHEN** o operador criar um ItemRoteiro ad-hoc do tipo Aviso
-- **THEN** o sistema SHALL adicioná-lo apenas ao Roteiro atual
-- **AND** SHALL impedir que esse item apareça nas buscas do catálogo
+**Reason**: ItemRoteiro deve preservar o conteúdo snapshotado na composição do Roteiro, em vez de refletir alterações posteriores do catálogo.
+
+**Migration**: Para registros existentes vinculados ao Catalogo, materializar o snapshot a partir do conteudo atual antes de remover a leitura viva. Em projeto greenfield, iniciar diretamente com o novo formato.
