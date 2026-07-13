@@ -21,5 +21,5 @@
 ## 4. Acabamento e verificacao
 
 - [x] 4.1 Aplicar layout responsivo e garantir leitura adequada em desktop e viewport movel.
-- [ ] 4.2 Verificar manualmente a navegacao entre todas as telas e os fluxos de busca, reordenacao, Slides, marca d'agua e paginacao.
+- [x] 4.2 Verificar manualmente a navegacao entre todas as telas e os fluxos de busca, reordenacao, Slides, marca d'agua e paginacao.
 - [x] 4.3 Abrir o `prototype/index.html` diretamente no navegador e confirmar que nao ha chamadas de rede ou dependencias externas.
