@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { listarRoteiros, Roteiro } from '../services/api';
-import Layout from '../components/Layout';
+import { Layout } from '../components/Layout';
 
 export function RoteirosPage() {
   const [roteiros, setRoteiros] = useState<Roteiro[]>([]);

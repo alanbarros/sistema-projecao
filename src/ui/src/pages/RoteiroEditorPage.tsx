@@ -3,7 +3,6 @@ import { useParams, Link } from 'react-router-dom';
 import {
   buscarRoteiroPorId,
   Roteiro,
-  ItemRoteiro,
   listarItens,
   ItemColetanea,
   adicionarItemAoRoteiro,
@@ -12,9 +11,9 @@ import {
   reordenarItens,
   atualizarItemRoteiro,
   ItemType,
-  BlockType
+  BlockType,
 } from '../services/api';
-import Layout from '../components/Layout';
+import { Layout } from '../components/Layout';
 
 export function RoteiroEditorPage() {
   const { id } = useParams<{ id: string }>();
@@ -296,7 +295,7 @@ export function RoteiroEditorPage() {
             <table className="tabela">
               <thead>
                 <tr>
-                  <th width="50">#</th>
+                  <th style={{ width: '50px' }}>#</th>
                   <th>Título</th>
                   <th>Tipo</th>
                   <th>Momento</th>

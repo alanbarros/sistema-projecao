@@ -22,9 +22,9 @@ export class AtualizarItemRoteiroUseCase {
   private validar(dados: AtualizarItemRoteiroDTO): ErroValidacao[] {
     const erros: ErroValidacao[] = [];
 
-    if (dados.momento_liturgico !== undefined && dados.momento_liturgico !== null) {
-      if (!MOMENTOS_LITURGICOS.includes(dados.momento_liturgico)) {
-        erros.push({ field: 'momento_liturgico', message: 'Momento litúrgico inválido' });
+    if (dados.momentoLiturgico !== undefined && dados.momentoLiturgico !== null) {
+      if (!MOMENTOS_LITURGICOS.includes(dados.momentoLiturgico)) {
+        erros.push({ field: 'momentoLiturgico', message: 'Momento litúrgico inválido' });
       }
     }
 

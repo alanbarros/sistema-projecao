@@ -1,4 +1,6 @@
-import { ItemType, BlockType } from '../../shared/enums';
+import { ItemType, BlockType, ITEM_TYPES, BLOCK_TYPES } from 'shared';
+
+export { ItemType, BlockType, ITEM_TYPES, BLOCK_TYPES };
 
 export interface ItemBloco {
   id?: number;

@@ -1,4 +1,4 @@
-import { ItemType } from '../shared/enums';
+import { ItemType } from '../../shared/enums';
 import { ItemBloco, CriarItemBlocoDTO } from './ItemBloco';
 
 export interface ItemColetanea {

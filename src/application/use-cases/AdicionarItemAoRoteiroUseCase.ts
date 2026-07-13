@@ -26,18 +26,18 @@ export class AdicionarItemAoRoteiroUseCase {
   private async validar(roteiroId: number, dados: CriarItemRoteiroCatalogoDTO): Promise<ErroValidacao[]> {
     const erros: ErroValidacao[] = [];
 
-    if (!dados.item_coletanea_id) {
-      erros.push({ field: 'item_coletanea_id', message: 'ID do item do catálogo é obrigatório' });
+    if (!dados.itemColetaneaId) {
+      erros.push({ field: 'itemColetaneaId', message: 'ID do item do catálogo é obrigatório' });
     } else {
-      const itemColetanea = await this.itemColetaneaRepository.buscarPorId(dados.item_coletanea_id);
+      const itemColetanea = await this.itemColetaneaRepository.buscarPorId(dados.itemColetaneaId);
       if (!itemColetanea) {
-        erros.push({ field: 'item_coletanea_id', message: 'Item do catálogo não encontrado' });
+        erros.push({ field: 'itemColetaneaId', message: 'Item do catálogo não encontrado' });
       }
     }
 
-    if (dados.momento_liturgico !== undefined && dados.momento_liturgico !== null) {
-      if (!MOMENTOS_LITURGICOS.includes(dados.momento_liturgico)) {
-        erros.push({ field: 'momento_liturgico', message: 'Momento litúrgico inválido' });
+    if (dados.momentoLiturgico !== undefined && dados.momentoLiturgico !== null) {
+      if (!MOMENTOS_LITURGICOS.includes(dados.momentoLiturgico)) {
+        erros.push({ field: 'momentoLiturgico', message: 'Momento litúrgico inválido' });
       }
     }
 

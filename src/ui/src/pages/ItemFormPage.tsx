@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { criarItem, atualizarItem, buscarItemPorId, ItemBloco } from '../services/api'
-import { ITEM_TYPES, BLOCK_TYPES, ItemType, BlockType } from '../../../shared/enums'
+import { criarItem, atualizarItem, buscarItemPorId, ITEM_TYPES, BLOCK_TYPES, ItemType, BlockType } from '../services/api'
 import { Layout } from '../components/Layout'
 
 interface BlocoForm {
@@ -82,7 +81,7 @@ export function ItemFormPage() {
       const dados = {
         titulo: titulo.trim(),
         tipo,
-        blocos: blocos.map((b, index) => ({
+        blocos: blocos.map((b) => ({
           tipo: b.tipo,
           conteudo: b.conteudo.trim()
         }))

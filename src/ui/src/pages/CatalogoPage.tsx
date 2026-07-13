@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
-import { listarItens, excluirItem, ItemColetanea, ItemType } from '../services/api'
-import { ITEM_TYPES } from '../../../shared/enums'
+import { listarItens, excluirItem, ItemColetanea, ItemType, ITEM_TYPES } from '../services/api'
 
 export function CatalogoPage() {
   const [itens, setItens] = useState<ItemColetanea[]>([])
