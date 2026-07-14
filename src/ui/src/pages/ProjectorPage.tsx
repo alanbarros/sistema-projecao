@@ -87,34 +87,34 @@ export function ProjectorPage() {
   if (erro || !roteiro) {
     return (
       <div className="projector-error">
-        <div>{erro || 'Roteiro não encontrado'}</div>
+        <div>{erro || 'Roteiro nao encontrado'}</div>
       </div>
     );
   }
 
   return (
-    <div className="projector-page">
+    <div className="projector">
       {currentSlide ? (
         <>
-          <div className="projector-conteudo">
+          <div className="projector-text">
             {currentSlide.conteudo}
           </div>
           
           {currentSlide.marcaAguaAtiva && (
             <div 
-              className="projector-marca-agua"
+              className="projector-watermark"
               style={{ opacity: PROJECTION_DEFAULTS.WATERMARK_OPACITY }}
             >
-              Marca d'Água
+              Marca d'Agua
             </div>
           )}
           
-          <div className="projector-paginacao">
+          <div className="projector-page">
             {currentSlide.indice}/{currentSlide.total}
           </div>
         </>
       ) : (
-        <div className="projector-empty">
+        <div className="projector-text" style={{ opacity: 0.5 }}>
           Aguardando slide...
         </div>
       )}

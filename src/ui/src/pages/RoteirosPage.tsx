@@ -40,73 +40,86 @@ export function RoteirosPage() {
 
   const totalPaginas = Math.ceil(total / limit);
 
-  return (
-    <Layout>
-      <div className="catalogo-page">
-        <div className="catalogo-header">
-          <h1>Roteiros</h1>
-          <div className="header-actions">
-            <Link to="/" className="btn btn-secondary">
-              Catálogo
-            </Link>
-            <Link to="/roteiros/novo" className="btn btn-primary">
-              Novo Roteiro
-            </Link>
-          </div>
-        </div>
+  const formatarData = (data: string | null | undefined) => {
+    if (!data) return null;
+    const d = new Date(data + 'T00:00:00');
+    const dia = d.getDate();
+    const mes = d.toLocaleDateString('pt-BR', { month: 'short' });
+    const diaSemana = d.toLocaleDateString('pt-BR', { weekday: 'short' });
+    return { dia, mes, diaSemana };
+  };
 
-        <div className="catalogo-filtros">
-          <form onSubmit={handleBusca} className="busca-form">
+  return (
+    <Layout pageTitle="Celebracoes">
+      <div className="page-head">
+        <div>
+          <p className="eyebrow">Roteiros</p>
+          <h2>Celebracoes</h2>
+          <p>Gerencie os roteiros das celebracoes</p>
+        </div>
+        <Link to="/roteiros/novo" className="button">
+          Nova Celebracao
+        </Link>
+      </div>
+
+      <div className="card">
+        <div className="toolbar">
+          <form onSubmit={handleBusca} style={{ display: 'flex', gap: '10px', width: '100%' }}>
             <input
               type="text"
-              placeholder="Buscar roteiros..."
+              placeholder="Buscar celebracoes..."
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
-              className="busca-input"
+              className="search"
             />
-            <button type="submit" className="btn btn-secondary">
+            <button type="submit" className="button secondary">
               Buscar
             </button>
           </form>
         </div>
 
         {carregando ? (
-          <div className="carregando">Carregando...</div>
+          <div className="loading">Carregando...</div>
         ) : (
           <>
-            <div className="catalogo-lista">
+            <div className="route-list">
               {roteiros.length === 0 ? (
-                <div className="lista-vazia">
-                  <p>Nenhum roteiro encontrado.</p>
+                <div className="empty-state">
+                  <p>Nenhuma celebracao encontrada.</p>
                 </div>
               ) : (
-                <table className="tabela">
-                  <thead>
-                    <tr>
-                      <th>Título</th>
-                      <th>Data</th>
-                      <th>Ações</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {roteiros.map((roteiro) => (
-                      <tr key={roteiro.id}>
-                        <td>{roteiro.titulo}</td>
-                        <td>{roteiro.dataCelebracao || '-'}</td>
-                        <td>
-                          <div className="acoes">
-                            <Link
-                              to={`/roteiros/${roteiro.id}`}
-                              className="btn btn-small"
-                            >
-                              Editar
-                            </Link>
+                roteiros.map((roteiro) => {
+                  const data = formatarData(roteiro.dataCelebracao);
+                  return (
+                    <Link
+                      to={`/roteiros/${roteiro.id}`}
+                      key={roteiro.id}
+                      style={{ textDecoration: 'none' }}
+                    >
+                      <div className="card route-card">
+                        {data ? (
+                          <div className="route-date">
+                            <span>{data.diaSemana}</span>
+                            <strong>{data.dia}</strong>
                           </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                        ) : (
+                          <div className="route-date">
+                            <span>--</span>
+                            <strong>--</strong>
+                          </div>
+                        )}
+                        <div style={{ flex: 1 }}>
+                          <h3>{roteiro.titulo}</h3>
+                          <p>
+                            {roteiro.dataCelebracao || 'Sem data definida'}
+                            {roteiro.descricao ? ` · ${roteiro.descricao}` : ''}
+                          </p>
+                        </div>
+                        <span className="arrow">→</span>
+                      </div>
+                    </Link>
+                  );
+                })
               )}
             </div>
 
@@ -115,19 +128,19 @@ export function RoteirosPage() {
                 <button
                   onClick={() => setOffset(Math.max(0, offset - limit))}
                   disabled={offset === 0}
-                  className="btn btn-secondary"
+                  className="button secondary"
                 >
                   Anterior
                 </button>
-                <span className="paginacao-info">
-                  Página {Math.floor(offset / limit) + 1} de {totalPaginas}
+                <span className="pagina-info">
+                  Pagina {Math.floor(offset / limit) + 1} de {totalPaginas}
                 </span>
                 <button
                   onClick={() => setOffset(offset + limit)}
                   disabled={offset + limit >= total}
-                  className="btn btn-secondary"
+                  className="button secondary"
                 >
-                  Próxima
+                  Proxima
                 </button>
               </div>
             )}

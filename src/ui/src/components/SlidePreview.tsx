@@ -14,20 +14,20 @@ interface SlidePreviewProps {
 export function SlidePreview({ slide }: SlidePreviewProps) {
   return (
     <div className="slide-preview">
-      <div className="slide-conteudo">
+      <div className="slide-text">
         {slide.conteudo}
       </div>
       
       {slide.marcaAguaAtiva && (
         <div 
-          className="slide-marca-agua"
+          className="watermark"
           style={{ opacity: PROJECTION_DEFAULTS.WATERMARK_OPACITY }}
         >
-          Marca d'Água
+          Marca d'Agua
         </div>
       )}
       
-      <div className="slide-paginacao">
+      <div className="pagination">
         {slide.indice}/{slide.total}
       </div>
     </div>

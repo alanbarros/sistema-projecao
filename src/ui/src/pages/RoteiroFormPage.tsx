@@ -39,13 +39,13 @@ export function RoteiroFormPage() {
     const novosErros: Record<string, string> = {};
 
     if (!titulo.trim()) {
-      novosErros.titulo = 'Título é obrigatório';
+      novosErros.titulo = 'Titulo e obrigatorio';
     } else if (titulo.length > 255) {
-      novosErros.titulo = 'Título deve ter no máximo 255 caracteres';
+      novosErros.titulo = 'Titulo deve ter no maximo 255 caracteres';
     }
 
     if (descricao.length > 500) {
-      novosErros.descricao = 'Descrição deve ter no máximo 500 caracteres';
+      novosErros.descricao = 'Descricao deve ter no maximo 500 caracteres';
     }
 
     setErros(novosErros);
@@ -97,47 +97,60 @@ export function RoteiroFormPage() {
 
   if (carregando) {
     return (
-      <Layout>
-        <div className="carregando">Carregando...</div>
+      <Layout pageTitle="Carregando...">
+        <div className="loading">Carregando...</div>
       </Layout>
     );
   }
 
   return (
-    <Layout>
-      <div className="form-page">
-        <h1>{isEdicao ? 'Editar Roteiro' : 'Novo Roteiro'}</h1>
+    <Layout
+      pageTitle={isEdicao ? 'Editar Roteiro' : 'Novo Roteiro'}
+      breadcrumb={[
+        { label: 'Celebracoes', to: '/roteiros' },
+        { label: isEdicao ? 'Editar' : 'Novo' }
+      ]}
+    >
+      <div className="page-head">
+        <div>
+          <p className="eyebrow">Roteiros</p>
+          <h2>{isEdicao ? 'Editar Roteiro' : 'Nova Celebracao'}</h2>
+        </div>
+      </div>
 
-        {erros.geral && <div className="erro-geral">{erros.geral}</div>}
+      {erros.geral && (
+        <div className="error-message">{erros.geral}</div>
+      )}
 
-        <form onSubmit={handleSubmit} className="form">
-          <div className="form-grupo">
-            <label htmlFor="titulo">Título *</label>
+      <div className="card form">
+        <form onSubmit={handleSubmit}>
+          <div className="field">
+            <label htmlFor="titulo">Titulo *</label>
             <input
               type="text"
               id="titulo"
               value={titulo}
               onChange={(e) => setTitulo(e.target.value)}
-              className={erros.titulo ? 'input-erro' : ''}
+              style={{ borderColor: erros.titulo ? 'var(--coral)' : undefined }}
               maxLength={255}
             />
-            {erros.titulo && <span className="erro-campo">{erros.titulo}</span>}
+            {erros.titulo && <span style={{ color: 'var(--coral)', fontSize: '13px' }}>{erros.titulo}</span>}
           </div>
 
-          <div className="form-grupo">
-            <label htmlFor="descricao">Descrição</label>
+          <div className="field">
+            <label htmlFor="descricao">Descricao</label>
             <textarea
               id="descricao"
               value={descricao}
               onChange={(e) => setDescricao(e.target.value)}
-              className={erros.descricao ? 'input-erro' : ''}
+              style={{ borderColor: erros.descricao ? 'var(--coral)' : undefined }}
               maxLength={500}
               rows={3}
             />
-            {erros.descricao && <span className="erro-campo">{erros.descricao}</span>}
+            {erros.descricao && <span style={{ color: 'var(--coral)', fontSize: '13px' }}>{erros.descricao}</span>}
           </div>
 
-          <div className="form-grupo">
+          <div className="field">
             <label htmlFor="dataCelebracao">Data de Celebração</label>
             <input
               type="date"
@@ -147,16 +160,16 @@ export function RoteiroFormPage() {
             />
           </div>
 
-          <div className="form-acoes">
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '8px' }}>
             <button
               type="button"
               onClick={() => navigate(-1)}
-              className="btn btn-secondary"
+              className="button secondary"
               disabled={salvando}
             >
               Cancelar
             </button>
-            <button type="submit" className="btn btn-primary" disabled={salvando}>
+            <button type="submit" className="button" disabled={salvando}>
               {salvando ? 'Salvando...' : 'Salvar'}
             </button>
           </div>

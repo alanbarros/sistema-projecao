@@ -1,10 +1,4 @@
-# Play Mode - Operator Panel
-
-## Purpose
-
-Fornecer a interface do operador durante a apresentação em tempo real, com painel tripartido para controle de slides.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Painel operacional e tela do projetor
 
@@ -42,12 +36,3 @@ O Modo Play SHALL exibir uma barra de status fixa no rodapé com fundo moss-deep
 
 - **WHEN** o Modo Play estiver ativo
 - **THEN** a barra de status SHALL exibir os atalhos de teclado com ícones de setas e o texto "← → para navegar"
-
-### Requirement: Entrada no Modo Play a partir do editor
-
-O editor de Roteiro SHALL disponibilizar um acionamento explícito para iniciar o Modo Play do Roteiro atual.
-
-#### Scenario: Iniciar Modo Play
-
-- **WHEN** o operador acionar o comando de Play no editor do Roteiro
-- **THEN** o sistema SHALL navegar para a tela do Modo Play com o primeiro ItemRoteiro ativo

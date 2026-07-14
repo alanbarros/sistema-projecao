@@ -1,9 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Layout } from '../components/Layout';
 import { useProjection } from '../hooks/useProjection';
-import { SlidePreview } from '../components/SlidePreview';
-import { ProjectionStatusBar } from '../components/ProjectionStatusBar';
 import { abrirProjecao } from '../services/projector';
 import { BlockType } from 'shared';
 
@@ -37,7 +34,7 @@ export function PlayModePage() {
   const [roteiro, setRoteiro] = useState<Roteiro | null>(null);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'acervo' | 'roteiro' | 'preview'>('roteiro');
+  const [buscaAcervo, setBuscaAcervo] = useState('');
 
   const carregarRoteiro = useCallback(async () => {
     if (!id) return;
@@ -97,115 +94,135 @@ export function PlayModePage() {
 
   if (carregando) {
     return (
-      <Layout>
-        <div className="carregando">Carregando...</div>
-      </Layout>
+      <div className="play-mode-page">
+        <div className="loading">Carregando...</div>
+      </div>
     );
   }
 
   if (erro || !roteiro) {
     return (
-      <Layout>
-        <div className="erro">{erro || 'Roteiro não encontrado'}</div>
-      </Layout>
+      <div className="play-mode-page">
+        <div className="error-message">{erro || 'Roteiro nao encontrado'}</div>
+      </div>
     );
   }
 
+  const itensFiltrados = roteiro.itens.filter(item =>
+    item.tituloSnapshot.toLowerCase().includes(buscaAcervo.toLowerCase())
+  );
+
   return (
-    <Layout>
-      <div className="play-mode-page">
-        <div className="play-header">
-          <div>
-            <Link to={`/roteiros/${id}`} className="voltar-link">
-              ← Voltar para Editor
-            </Link>
-            <h1>Modo Play: {roteiro.titulo}</h1>
-          </div>
-          <div className="play-acoes">
-            <button onClick={handleOpenProjector} className="btn btn-primary">
-              Abrir Projetor
-            </button>
-            <span className={`status-conexao ${isConnected ? 'conectado' : 'desconectado'}`}>
-              {isConnected ? 'Conectado' : 'Desconectado'}
-            </span>
-          </div>
+    <div className="play-mode-page">
+      <div className="play-header">
+        <div>
+          <Link to={`/roteiros/${id}`} className="voltar-link">
+            ← Voltar para Editor
+          </Link>
+          <h1>{roteiro.titulo}</h1>
         </div>
-
-        <div className="play-tabs">
-          <button
-            className={`tab ${activeTab === 'acervo' ? 'active' : ''}`}
-            onClick={() => setActiveTab('acervo')}
-          >
-            Acervo
+        <div className="play-acoes">
+          <button onClick={handleOpenProjector} className="button">
+            Abrir Projetor
           </button>
-          <button
-            className={`tab ${activeTab === 'roteiro' ? 'active' : ''}`}
-            onClick={() => setActiveTab('roteiro')}
-          >
-            Roteiro
-          </button>
-          <button
-            className={`tab ${activeTab === 'preview' ? 'active' : ''}`}
-            onClick={() => setActiveTab('preview')}
-          >
-            Preview
-          </button>
+          <span className={`status-conexao ${isConnected ? 'conectado' : 'desconectado'}`}>
+            {isConnected ? 'Conectado' : 'Desconectado'}
+          </span>
         </div>
+      </div>
 
-        <div className="play-content">
-          {activeTab === 'acervo' && (
-            <div className="acervo-panel">
-              <h2>Acervo</h2>
-              <input
-                type="text"
-                placeholder="Buscar itens..."
-                className="busca-input"
-              />
-              <div className="lista-itens-catalogo">
-                <p>Itens do catálogo disponíveis para adição ao roteiro</p>
-              </div>
+      <div className="play">
+        <div className="play-grid">
+          <div className="play-column">
+            <div className="column-title">
+              <span>Acervo</span>
             </div>
-          )}
-
-          {activeTab === 'roteiro' && (
-            <div className="roteiro-panel">
-              <h2>Itens do Roteiro</h2>
-              <div className="lista-itens-roteiro">
-                {roteiro.itens.map((item) => (
-                  <div
-                    key={item.id}
-                    className={`item-roteiro ${projectionState?.itemRoteiroId === item.id ? 'ativo' : ''}`}
-                    onClick={() => jumpToItem(item.id)}
-                  >
-                    <span className="item-titulo">{item.tituloSnapshot}</span>
-                    <span className="item-tipo">{item.tipoSnapshot}</span>
-                  </div>
-                ))}
-              </div>
+            <input
+              type="text"
+              placeholder="Buscar itens..."
+              value={buscaAcervo}
+              onChange={(e) => setBuscaAcervo(e.target.value)}
+              className="search compact-search"
+            />
+            <div>
+              {itensFiltrados.map((item) => (
+                <button
+                  key={item.id}
+                  className={`mini-item ${projectionState?.itemRoteiroId === item.id ? 'active' : ''}`}
+                  onClick={() => jumpToItem(item.id)}
+                >
+                  <strong>{item.tituloSnapshot}</strong>
+                  <span>{item.tipoSnapshot} · {item.blocos.length} slide(s)</span>
+                </button>
+              ))}
             </div>
-          )}
+          </div>
 
-          {activeTab === 'preview' && (
-            <div className="preview-panel">
+          <div className="play-column">
+            <div className="column-title">
+              <span>Roteiro</span>
+              <span style={{ fontSize: '12px', fontWeight: 400, textTransform: 'none', letterSpacing: 0 }}>
+                {roteiro.itens.length} itens
+              </span>
+            </div>
+            <div>
+              {roteiro.itens.map((item) => (
+                <button
+                  key={item.id}
+                  className={`mini-item ${projectionState?.itemRoteiroId === item.id ? 'active' : ''}`}
+                  onClick={() => jumpToItem(item.id)}
+                >
+                  <strong>{item.tituloSnapshot}</strong>
+                  <span>
+                    {item.tipoSnapshot}
+                    {item.momentoLiturgico && ` · ${item.momentoLiturgico}`}
+                    {' · '}{item.blocos.length} slide(s)
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="play-column">
+            <div className="column-title">
+              <span>Preview</span>
+            </div>
+            <div className="play-preview">
               {currentSlide ? (
-                <SlidePreview slide={currentSlide} />
+                <div className="slide-preview">
+                  <div className="slide-text">
+                    {currentSlide.conteudo}
+                  </div>
+                  {currentSlide.marcaAguaAtiva && (
+                    <div className="watermark">Marca d'Agua</div>
+                  )}
+                  <div className="pagination">
+                    {currentSlide.indice}/{currentSlide.total}
+                  </div>
+                </div>
               ) : (
-                <div className="preview-vazio">
+                <div style={{ color: 'var(--muted)', textAlign: 'center' }}>
                   Selecione um item no roteiro para visualizar
                 </div>
               )}
             </div>
-          )}
+          </div>
         </div>
 
-        {projectionState && (
-          <ProjectionStatusBar
-            titulo={roteiro.itens.find(i => i.id === projectionState.itemRoteiroId)?.tituloSnapshot || ''}
-            slideAtual={projectionState.slideIndice}
-            totalSlides={projectionState.totalSlides}
-          />
-        )}
+        <div className="play-status">
+          <div className="current">
+            EM EXIBICAO · <strong>{roteiro.itens.find(i => i.id === projectionState?.itemRoteiroId)?.tituloSnapshot || 'Nenhum item'}</strong>
+            {projectionState && (
+              <> · Slide {projectionState.slideIndice} / {projectionState.totalSlides}</>
+            )}
+          </div>
+          <div className="keyboard">
+            <span className="key">←</span>
+            <span className="key">→</span>
+            <span>para navegar</span>
+          </div>
+        </div>
       </div>
-    </Layout>
+    </div>
   );
 }

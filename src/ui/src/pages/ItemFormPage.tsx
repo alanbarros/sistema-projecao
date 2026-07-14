@@ -48,9 +48,9 @@ export function ItemFormPage() {
     const newErrors: Record<string, string> = {}
     
     if (!titulo.trim()) {
-      newErrors.titulo = 'Título é obrigatório'
+      newErrors.titulo = 'Titulo e obrigatorio'
     } else if (titulo.length > 255) {
-      newErrors.titulo = 'Título deve ter no máximo 255 caracteres'
+      newErrors.titulo = 'Titulo deve ter no maximo 255 caracteres'
     }
     
     if (blocos.length === 0) {
@@ -58,7 +58,7 @@ export function ItemFormPage() {
     } else {
       blocos.forEach((bloco, index) => {
         if (!bloco.conteudo.trim()) {
-          newErrors[`bloco_${index}_conteudo`] = 'Conteúdo do bloco é obrigatório'
+          newErrors[`bloco_${index}_conteudo`] = 'Conteudo do bloco e obrigatorio'
         }
       })
     }
@@ -145,141 +145,187 @@ export function ItemFormPage() {
     setBlocos(novosBlocos)
   }
 
+  const preview_blocos = blocos.filter(b => b.conteudo.trim())
+
   if (loadingData) {
-    return <Layout><div className="loading">Carregando...</div></Layout>
+    return (
+      <Layout pageTitle="Carregando...">
+        <div className="loading">Carregando...</div>
+      </Layout>
+    )
   }
 
   return (
-    <Layout>
-      <div className="item-form-page">
-        <h1>{isEditing ? 'Editar Item' : 'Novo Item'}</h1>
-        
-        {error && (
-          <div className="error-message">
-            {error}
-          </div>
-        )}
-        
-        <form onSubmit={handleSubmit} className="item-form">
-          <div className="form-group">
-            <label htmlFor="titulo">Título *</label>
-            <input
-              type="text"
-              id="titulo"
-              value={titulo}
-              onChange={(e) => setTitulo(e.target.value)}
-              className={errors.titulo ? 'error' : ''}
-              maxLength={255}
-            />
-            {errors.titulo && <span className="field-error">{errors.titulo}</span>}
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="tipo">Tipo *</label>
-            <select
-              id="tipo"
-              value={tipo}
-              onChange={(e) => setTipo(e.target.value as ItemType)}
-            >
-              {ITEM_TYPES.map(t => (
-                <option key={t} value={t}>{t}</option>
-              ))}
-            </select>
-          </div>
-          
-          <div className="form-group">
-            <label>Blocos *</label>
-            {errors.blocos && <span className="field-error">{errors.blocos}</span>}
-            
-            <div className="blocos-list">
-              {blocos.map((bloco, index) => (
-                <div key={index} className="bloco-item">
-                  <div className="bloco-header">
-                    <span className="bloco-number">Bloco {index + 1}</span>
-                    <div className="bloco-actions">
-                      <button
-                        type="button"
-                        onClick={() => moverBloco(index, -1)}
-                        disabled={index === 0}
-                        className="btn-icon"
-                        title="Mover para cima"
-                      >
-                        ↑
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => moverBloco(index, 1)}
-                        disabled={index === blocos.length - 1}
-                        className="btn-icon"
-                        title="Mover para baixo"
-                      >
-                        ↓
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => removerBloco(index)}
-                        disabled={blocos.length === 1}
-                        className="btn-icon btn-danger"
-                        title="Remover bloco"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  </div>
-                  
-                  <div className="bloco-fields">
-                    <select
-                      value={bloco.tipo}
-                      onChange={(e) => atualizarBloco(index, 'tipo', e.target.value)}
-                    >
-                      {BLOCK_TYPES.map(t => (
-                        <option key={t} value={t}>
-                          {t.charAt(0).toUpperCase() + t.slice(1)}
-                        </option>
-                      ))}
-                    </select>
-                    
-                    <textarea
-                      value={bloco.conteudo}
-                      onChange={(e) => atualizarBloco(index, 'conteudo', e.target.value)}
-                      placeholder="Conteúdo do bloco..."
-                      className={errors[`bloco_${index}_conteudo`] ? 'error' : ''}
-                      rows={3}
-                    />
-                    {errors[`bloco_${index}_conteudo`] && (
-                      <span className="field-error">{errors[`bloco_${index}_conteudo`]}</span>
-                    )}
-                  </div>
-                </div>
-              ))}
+    <Layout
+      pageTitle={isEditing ? 'Editar Item' : 'Novo Item'}
+      breadcrumb={[
+        { label: 'Catalogo', to: '/' },
+        { label: isEditing ? 'Editar' : 'Novo' }
+      ]}
+    >
+      <div className="page-head">
+        <div>
+          <p className="eyebrow">Catalogo</p>
+          <h2>{isEditing ? 'Editar Item' : 'Novo Item'}</h2>
+        </div>
+      </div>
+      
+      {error && (
+        <div className="error-message">
+          {error}
+        </div>
+      )}
+      
+      <div className="form-layout">
+        <div className="card form">
+          <form onSubmit={handleSubmit}>
+            <div className="field">
+              <label htmlFor="titulo">Titulo *</label>
+              <input
+                type="text"
+                id="titulo"
+                value={titulo}
+                onChange={(e) => setTitulo(e.target.value)}
+                style={{ borderColor: errors.titulo ? 'var(--coral)' : undefined }}
+                maxLength={255}
+              />
+              {errors.titulo && <span style={{ color: 'var(--coral)', fontSize: '13px' }}>{errors.titulo}</span>}
             </div>
             
-            <button
-              type="button"
-              onClick={adicionarBloco}
-              className="btn btn-secondary"
-            >
-              + Adicionar Bloco
-            </button>
+            <div className="field">
+              <label htmlFor="tipo">Tipo *</label>
+              <select
+                id="tipo"
+                value={tipo}
+                onChange={(e) => setTipo(e.target.value as ItemType)}
+              >
+                {ITEM_TYPES.map(t => (
+                  <option key={t} value={t}>{t}</option>
+                ))}
+              </select>
+            </div>
+            
+            <div className="field">
+              <label>Blocos *</label>
+              {errors.blocos && <span style={{ color: 'var(--coral)', fontSize: '13px' }}>{errors.blocos}</span>}
+              
+              <div className="blocos-list">
+                {blocos.map((bloco, index) => (
+                  <div key={index} className="bloco-item">
+                    <div className="bloco-header">
+                      <span className="bloco-number">Bloco {index + 1}</span>
+                      <div className="bloco-actions">
+                        <button
+                          type="button"
+                          onClick={() => moverBloco(index, -1)}
+                          disabled={index === 0}
+                          className="icon-button"
+                          title="Mover para cima"
+                        >
+                          ↑
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => moverBloco(index, 1)}
+                          disabled={index === blocos.length - 1}
+                          className="icon-button"
+                          title="Mover para baixo"
+                        >
+                          ↓
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => removerBloco(index)}
+                          disabled={blocos.length === 1}
+                          className="icon-button"
+                          style={{ color: 'var(--coral)' }}
+                          title="Remover bloco"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    </div>
+                    
+                    <div className="bloco-fields">
+                      <select
+                        value={bloco.tipo}
+                        onChange={(e) => atualizarBloco(index, 'tipo', e.target.value)}
+                      >
+                        {BLOCK_TYPES.map(t => (
+                          <option key={t} value={t}>
+                            {t.charAt(0).toUpperCase() + t.slice(1)}
+                          </option>
+                        ))}
+                      </select>
+                      
+                      <textarea
+                        value={bloco.conteudo}
+                        onChange={(e) => atualizarBloco(index, 'conteudo', e.target.value)}
+                        placeholder="Conteudo do bloco..."
+                        style={{ borderColor: errors[`bloco_${index}_conteudo`] ? 'var(--coral)' : undefined }}
+                        rows={3}
+                      />
+                      {errors[`bloco_${index}_conteudo`] && (
+                        <span style={{ color: 'var(--coral)', fontSize: '13px' }}>
+                          {errors[`bloco_${index}_conteudo`]}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              <button
+                type="button"
+                onClick={adicionarBloco}
+                className="button secondary"
+              >
+                + Adicionar Bloco
+              </button>
+            </div>
+            
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '8px' }}>
+              <button
+                type="button"
+                onClick={() => navigate('/')}
+                className="button secondary"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="button"
+              >
+                {loading ? 'Salvando...' : isEditing ? 'Salvar' : 'Criar'}
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div className="card preview">
+          <h3 style={{ margin: '0 0 16px', fontSize: '14px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--muted)' }}>
+            Preview do Slide
+          </h3>
+          <div className="slide-preview">
+            {preview_blocos.length > 0 ? (
+              <>
+                <div className="slide-text">
+                  {preview_blocos.map((b, i) => (
+                    <p key={i} style={{ margin: i > 0 ? '1em 0 0' : 0 }}>
+                      {b.conteudo}
+                    </p>
+                  ))}
+                </div>
+                <div className="pagination">1 / 1</div>
+              </>
+            ) : (
+              <div className="slide-text" style={{ opacity: 0.4 }}>
+                Digite o conteudo dos blocos para visualizar
+              </div>
+            )}
           </div>
-          
-          <div className="form-actions">
-            <button
-              type="button"
-              onClick={() => navigate('/')}
-              className="btn"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn btn-primary"
-            >
-              {loading ? 'Salvando...' : isEditing ? 'Salvar' : 'Criar'}
-            </button>
-          </div>
-        </form>
+        </div>
       </div>
     </Layout>
   )

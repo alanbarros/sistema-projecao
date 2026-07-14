@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
   buscarRoteiroPorId,
   Roteiro,
@@ -12,7 +12,6 @@ import {
   atualizarItemRoteiro,
   ItemType,
   BlockType,
-  MomentoLiturgico,
 } from '../services/api';
 import { Layout } from '../components/Layout';
 
@@ -31,9 +30,6 @@ export function RoteiroEditorPage() {
   const [adHocTitulo, setAdHocTitulo] = useState('');
   const [adHocTipo, setAdHocTipo] = useState<ItemType>(ItemType.Aviso);
   const [adHocConteudo, setAdHocConteudo] = useState('');
-
-  const [momentoEditando, setMomentoEditando] = useState<number | null>(null);
-  const [valorMomento, setValorMomento] = useState('');
 
   const carregarRoteiro = useCallback(async () => {
     if (!id) return;
@@ -124,19 +120,6 @@ export function RoteiroEditorPage() {
     }
   };
 
-  const handleSalvarMomento = async (itemId: number) => {
-    if (!id) return;
-    try {
-      await atualizarItemRoteiro(parseInt(id), itemId, {
-        momentoLiturgico: valorMomento || null
-      });
-      setMomentoEditando(null);
-      await carregarRoteiro();
-    } catch (error) {
-      console.error('Erro ao salvar momento:', error);
-    }
-  };
-
   const handleToggleMarcaAgua = async (itemId: number, marcaAguaAtiva: boolean) => {
     if (!id) return;
     try {
@@ -156,246 +139,223 @@ export function RoteiroEditorPage() {
 
   if (carregando) {
     return (
-      <Layout>
-        <div className="carregando">Carregando...</div>
+      <Layout pageTitle="Carregando...">
+        <div className="loading">Carregando...</div>
       </Layout>
     );
   }
 
   if (erro || !roteiro) {
     return (
-      <Layout>
-        <div className="erro">{erro || 'Roteiro não encontrado'}</div>
+      <Layout pageTitle="Erro">
+        <div className="error-message">{erro || 'Roteiro não encontrado'}</div>
       </Layout>
     );
   }
 
   return (
-    <Layout>
-      <div className="editor-page">
-        <div className="editor-header">
-          <div>
-            <Link to="/roteiros" className="voltar-link">
-              ← Voltar para Roteiros
-            </Link>
-            <h1>{roteiro.titulo}</h1>
-            {roteiro.dataCelebracao && (
-              <p className="data-celebracao">{roteiro.dataCelebracao}</p>
-            )}
-          </div>
-          <div className="editor-acoes">
-            <button onClick={() => navigate(`/roteiros/${id}/play`)} className="btn btn-primary">
-              Iniciar Play
-            </button>
-            <button onClick={abrirModalCatalogo} className="btn btn-primary">
-              Adicionar do Catálogo
-            </button>
-            <button onClick={() => setShowFormAdHoc(true)} className="btn btn-secondary">
-              Criar Ad-Hoc
-            </button>
-          </div>
+    <Layout
+      pageTitle={roteiro.titulo}
+      breadcrumb={[
+        { label: 'Celebracoes', to: '/roteiros' },
+        { label: roteiro.titulo }
+      ]}
+    >
+      <div className="page-head">
+        <div>
+          <p className="eyebrow">Editor de Roteiro</p>
+          <h2>{roteiro.titulo}</h2>
+          {roteiro.dataCelebracao && (
+            <p>{roteiro.dataCelebracao}</p>
+          )}
         </div>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button onClick={() => navigate(`/roteiros/${id}/play`)} className="button">
+            Iniciar Play
+          </button>
+          <button onClick={abrirModalCatalogo} className="button secondary">
+            Adicionar do Catalogo
+          </button>
+          <button onClick={() => setShowFormAdHoc(true)} className="button ghost">
+            Criar Ad-Hoc
+          </button>
+        </div>
+      </div>
 
-        {showFormAdHoc && (
-          <div className="modal-overlay" onClick={() => setShowFormAdHoc(false)}>
-            <div className="modal" onClick={(e) => e.stopPropagation()}>
-              <h2>Criar Item Ad-Hoc</h2>
-              <form onSubmit={handleCriarAdHoc}>
-                <div className="form-grupo">
-                  <label>Título *</label>
-                  <input
-                    type="text"
-                    value={adHocTitulo}
-                    onChange={(e) => setAdHocTitulo(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="form-grupo">
-                  <label>Tipo *</label>
-                  <select
-                    value={adHocTipo}
-                    onChange={(e) => setAdHocTipo(e.target.value as ItemType)}
-                  >
-                    {Object.values(ItemType).map((tipo) => (
-                      <option key={tipo} value={tipo}>
-                        {tipo}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="form-grupo">
-                  <label>Conteúdo *</label>
-                  <textarea
-                    value={adHocConteudo}
-                    onChange={(e) => setAdHocConteudo(e.target.value)}
-                    rows={4}
-                    required
-                  />
-                </div>
-                <div className="modal-acoes">
-                  <button
-                    type="button"
-                    onClick={() => setShowFormAdHoc(false)}
-                    className="btn btn-secondary"
-                  >
-                    Cancelar
-                  </button>
-                  <button type="submit" className="btn btn-primary">
-                    Criar
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
-
-        {showModalCatalogo && (
-          <div className="modal-overlay" onClick={() => setShowModalCatalogo(false)}>
-            <div className="modal modal-grande" onClick={(e) => e.stopPropagation()}>
-              <h2>Adicionar do Catálogo</h2>
-              <input
-                type="text"
-                placeholder="Buscar itens..."
-                value={buscaCatalogo}
-                onChange={(e) => {
-                  setBuscaCatalogo(e.target.value);
-                  carregarItensCatalogo();
-                }}
-                className="busca-input"
-              />
-              <div className="lista-itens-catalogo">
-                {itensCatalogo.map((item) => (
-                  <div key={item.id} className="item-catalogo">
-                    <div>
-                      <strong>{item.titulo}</strong>
-                      <span className="tipo-badge">{item.tipo}</span>
-                    </div>
-                    <button
-                      onClick={() => handleAdicionarDoCatalogo(item.id)}
-                      className="btn btn-small btn-primary"
-                    >
-                      Adicionar
-                    </button>
-                  </div>
-                ))}
+      {showFormAdHoc && (
+        <div className="modal-overlay" onClick={() => setShowFormAdHoc(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <h2>Criar Item Ad-Hoc</h2>
+            <form onSubmit={handleCriarAdHoc}>
+              <div className="field">
+                <label>Titulo *</label>
+                <input
+                  type="text"
+                  value={adHocTitulo}
+                  onChange={(e) => setAdHocTitulo(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="field">
+                <label>Tipo *</label>
+                <select
+                  value={adHocTipo}
+                  onChange={(e) => setAdHocTipo(e.target.value as ItemType)}
+                >
+                  {Object.values(ItemType).map((tipo) => (
+                    <option key={tipo} value={tipo}>
+                      {tipo}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="field">
+                <label>Conteudo *</label>
+                <textarea
+                  value={adHocConteudo}
+                  onChange={(e) => setAdHocConteudo(e.target.value)}
+                  rows={4}
+                  required
+                />
               </div>
               <div className="modal-acoes">
                 <button
-                  onClick={() => setShowModalCatalogo(false)}
-                  className="btn btn-secondary"
+                  type="button"
+                  onClick={() => setShowFormAdHoc(false)}
+                  className="button secondary"
                 >
-                  Fechar
+                  Cancelar
+                </button>
+                <button type="submit" className="button">
+                  Criar
                 </button>
               </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {showModalCatalogo && (
+        <div className="modal-overlay" onClick={() => setShowModalCatalogo(false)}>
+          <div className="modal modal-grande" onClick={(e) => e.stopPropagation()}>
+            <h2>Adicionar do Catalogo</h2>
+            <input
+              type="text"
+              placeholder="Buscar itens..."
+              value={buscaCatalogo}
+              onChange={(e) => {
+                setBuscaCatalogo(e.target.value);
+                carregarItensCatalogo();
+              }}
+              className="search"
+              style={{ maxWidth: '100%', marginBottom: '16px' }}
+            />
+            <div style={{ maxHeight: '400px', overflow: 'auto' }}>
+              {itensCatalogo.map((item) => (
+                <div key={item.id} style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: '12px',
+                  borderBottom: '1px solid var(--line)'
+                }}>
+                  <div>
+                    <strong>{item.titulo}</strong>
+                    <span className="tag" style={{ marginLeft: '8px' }}>{item.tipo}</span>
+                  </div>
+                  <button
+                    onClick={() => handleAdicionarDoCatalogo(item.id)}
+                    className="button"
+                    style={{ padding: '6px 12px', fontSize: '13px' }}
+                  >
+                    Adicionar
+                  </button>
+                </div>
+              ))}
+            </div>
+            <div className="modal-acoes">
+              <button
+                onClick={() => setShowModalCatalogo(false)}
+                className="button secondary"
+              >
+                Fechar
+              </button>
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        <div className="lista-itens-roteiro">
+      <div className="route-layout">
+        <div className="card sequence">
           {roteiro.itens.length === 0 ? (
-            <div className="lista-vazia">
-              <p>Nenhum item no roteiro. Adicione itens do catálogo ou crie itens ad-hoc.</p>
+            <div className="empty-state">
+              <p>Nenhum item no roteiro. Adicione itens do catalogo ou crie itens ad-hoc.</p>
             </div>
           ) : (
-            <table className="tabela">
-              <thead>
-                <tr>
-                  <th style={{ width: '50px' }}>#</th>
-                  <th>Título</th>
-                  <th>Tipo</th>
-                  <th>Momento</th>
-                  <th>Marca d'Água</th>
-                  <th>Ações</th>
-                </tr>
-              </thead>
-              <tbody>
-                {roteiro.itens.map((item, index) => (
-                  <tr key={item.id}>
-                    <td>{item.posicao}</td>
-                    <td>{item.tituloSnapshot}</td>
-                    <td>
-                      <span className="tipo-badge">{item.tipoSnapshot}</span>
-                      {item.isAdHoc && <span className="ad-hoc-badge">Ad-Hoc</span>}
-                    </td>
-                    <td>
-                      {momentoEditando === item.id ? (
-                        <div className="inline-form">
-                          <select
-                            value={valorMomento}
-                            onChange={(e) => setValorMomento(e.target.value)}
-                          >
-                            <option value="">Nenhum</option>
-                            {Object.values(MomentoLiturgico).map((m) => (
-                              <option key={m} value={m}>{m}</option>
-                            ))}
-                          </select>
-                          <button
-                            onClick={() => handleSalvarMomento(item.id)}
-                            className="btn btn-small btn-primary"
-                          >
-                            Salvar
-                          </button>
-                          <button
-                            onClick={() => setMomentoEditando(null)}
-                            className="btn btn-small"
-                          >
-                            Cancelar
-                          </button>
-                        </div>
-                      ) : (
-                        <span
-                          onClick={() => {
-                            setMomentoEditando(item.id);
-                            setValorMomento(item.momentoLiturgico || '');
-                          }}
-                          className="editar-link"
-                        >
-                          {item.momentoLiturgico || '-'}
-                        </span>
-                      )}
-                    </td>
-                    <td>
-                      <label className="checkbox-label">
-                        <input
-                          type="checkbox"
-                          checked={item.marcaAguaAtiva}
-                          onChange={() => handleToggleMarcaAgua(item.id, item.marcaAguaAtiva)}
-                        />
-                        <span>{item.marcaAguaAtiva ? 'Ativa' : 'Inativa'}</span>
-                      </label>
-                    </td>
-                    <td>
-                      <div className="acoes">
-                        <button
-                          onClick={() => handleMover(item.id, 'cima')}
-                          disabled={index === 0}
-                          className="btn btn-small"
-                          title="Mover para cima"
-                        >
-                          ↑
-                        </button>
-                        <button
-                          onClick={() => handleMover(item.id, 'baixo')}
-                          disabled={index === roteiro.itens.length - 1}
-                          className="btn btn-small"
-                          title="Mover para baixo"
-                        >
-                          ↓
-                        </button>
-                        <button
-                          onClick={() => handleRemoverItem(item.id)}
-                          className="btn btn-small btn-danger"
-                          title="Remover"
-                        >
-                          ×
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            roteiro.itens.map((item, index) => (
+              <div key={item.id} className="route-item">
+                <span className="position">{item.posicao}</span>
+                <div style={{ minWidth: 0 }}>
+                  <h3>{item.tituloSnapshot}</h3>
+                  <p>
+                    <span className="tag" style={{ marginRight: '6px' }}>{item.tipoSnapshot}</span>
+                    {item.isAdHoc && <span className="origin">Ad-Hoc</span>}
+                    {item.momentoLiturgico && (
+                      <span style={{ marginLeft: '6px', color: 'var(--muted)' }}>
+                        · {item.momentoLiturgico}
+                      </span>
+                    )}
+                  </p>
+                </div>
+                <div className="route-actions">
+                  <label className="checkbox-label" title="Marca d'Agua">
+                    <input
+                      type="checkbox"
+                      checked={item.marcaAguaAtiva}
+                      onChange={() => handleToggleMarcaAgua(item.id, item.marcaAguaAtiva)}
+                    />
+                  </label>
+                  <button
+                    onClick={() => handleMover(item.id, 'cima')}
+                    disabled={index === 0}
+                    className="icon-button"
+                    title="Mover para cima"
+                  >
+                    ↑
+                  </button>
+                  <button
+                    onClick={() => handleMover(item.id, 'baixo')}
+                    disabled={index === roteiro.itens.length - 1}
+                    className="icon-button"
+                    title="Mover para baixo"
+                  >
+                    ↓
+                  </button>
+                  <button
+                    onClick={() => handleRemoverItem(item.id)}
+                    className="icon-button"
+                    style={{ color: 'var(--coral)' }}
+                    title="Remover"
+                  >
+                    ×
+                  </button>
+                </div>
+              </div>
+            ))
           )}
+        </div>
+
+        <div className="card add-panel">
+          <h3>Adicionar Item</h3>
+          <p className="hint">
+            Selecione um item do catalogo ou crie um item ad-hoc para adicionar ao roteiro.
+          </p>
+          <button onClick={abrirModalCatalogo} className="button" style={{ width: '100%' }}>
+            Buscar no Catalogo
+          </button>
+          <button onClick={() => setShowFormAdHoc(true)} className="button secondary" style={{ width: '100%' }}>
+            Criar Item Ad-Hoc
+          </button>
         </div>
       </div>
     </Layout>

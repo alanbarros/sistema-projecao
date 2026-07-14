@@ -6,10 +6,14 @@ interface ProjectionStatusBarProps {
 
 export function ProjectionStatusBar({ titulo, slideAtual, totalSlides }: ProjectionStatusBarProps) {
   return (
-    <div className="projection-status-bar">
-      <div className="status-titulo">{titulo}</div>
-      <div className="status-paginacao">
-        Slide {slideAtual} / {totalSlides}
+    <div className="play-status">
+      <div className="current">
+        EM EXIBICAO · <strong>{titulo}</strong> · Slide {slideAtual} / {totalSlides}
+      </div>
+      <div className="keyboard">
+        <span className="key">←</span>
+        <span className="key">→</span>
+        <span>para navegar</span>
       </div>
     </div>
   );

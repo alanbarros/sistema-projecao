@@ -158,12 +158,14 @@ O padrão SHALL ser marca d'água ativa (true).
 
 O sistema SHALL fornecer uma interface para listar, criar, editar e gerenciar Roteiros.
 
-A interface SHALL exibir a lista de roteiros com título e data, e SHALL permitir acessar o editor de cada roteiro. O editor de Roteiro SHALL incluir um acionamento explícito para iniciar o Modo Play do Roteiro atual.
+A interface SHALL exibir a lista de roteiros como cards horizontais com badge de data (quadrado com dia da semana + número do dia), título, descrição com data e contagem de itens, e seta de navegação à direita. A busca SHALL estar em um formulário toolbar dentro de um container card.
+
+O cabeçalho SHALL usar o padrão eyebrow + título h2 + descrição + botão de ação. O editor de Roteiro SHALL incluir um layout em 2 colunas: sequência de itens à esquerda e painel de adicionar à direita.
 
 #### Scenario: Acessar editor de roteiro
 
 - **WHEN** o operador selecionar um Roteiro na listagem
-- **THEN** o sistema SHALL exibir a tela do editor com a lista ordenada de ItemRoteiro
+- **THEN** o sistema SHALL exibir a tela do editor com layout em 2 colunas: lista ordenada de ItemRoteiro à esquerda e painel para adicionar itens à direita
 
 #### Scenario: Adicionar item do catálogo via interface
 
