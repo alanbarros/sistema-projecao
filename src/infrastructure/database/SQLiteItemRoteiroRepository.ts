@@ -173,17 +173,6 @@ export class SQLiteItemRoteiroRepository implements IItemRoteiroRepository {
   }
 
   async reordenar(roteiroId: number, itemIds: number[]): Promise<void> {
-    const itensExistentes = this.db.prepare(
-      'SELECT id FROM item_roteiro WHERE roteiro_id = ?'
-    ).all(roteiroId) as any[];
-
-    const idsExistentes = itensExistentes.map(i => i.id).sort();
-    const idsRecebidos = [...itemIds].sort();
-
-    if (JSON.stringify(idsExistentes) !== JSON.stringify(idsRecebidos)) {
-      throw new Error('A lista de itens deve conter todos os itens do roteiro');
-    }
-
     const updatePosicao = this.db.prepare(
       'UPDATE item_roteiro SET posicao = ? WHERE id = ?'
     );

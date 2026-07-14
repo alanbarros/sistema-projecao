@@ -185,6 +185,30 @@ router.post('/:id/itens/ad-hoc', async (req: Request, res: Response) => {
   }
 });
 
+router.put('/:id/itens/reorder', async (req: Request, res: Response) => {
+  try {
+    const repository = getItemRoteiroRepository();
+    const useCase = new ReordenarItensUseCase(repository);
+
+    const roteiroId = parseInt(req.params.id);
+    await useCase.executar(roteiroId, req.body.item_ids);
+
+    res.json({ message: 'Ordem atualizada com sucesso' });
+  } catch (error: any) {
+    if (error instanceof Error) {
+      try {
+        const parsed = JSON.parse(error.message);
+        const status = parsed.error?.includes('não encontrado') ? 404 : 400;
+        res.status(status).json(parsed);
+      } catch {
+        res.status(400).json({ error: error.message });
+      }
+    } else {
+      res.status(500).json({ error: String(error) || 'Erro interno do servidor' });
+    }
+  }
+});
+
 router.put('/:id/itens/:itemId', async (req: Request, res: Response) => {
   try {
     const repository = getItemRoteiroRepository();
@@ -218,30 +242,6 @@ router.delete('/:id/itens/:itemId', async (req: Request, res: Response) => {
     await useCase.executar(itemId);
 
     res.status(204).send();
-  } catch (error) {
-    if (error instanceof Error) {
-      try {
-        const parsed = JSON.parse(error.message);
-        const status = parsed.error.includes('não encontrado') ? 404 : 400;
-        res.status(status).json(parsed);
-      } catch {
-        res.status(500).json({ error: 'Erro interno do servidor' });
-      }
-    } else {
-      res.status(500).json({ error: 'Erro interno do servidor' });
-    }
-  }
-});
-
-router.put('/:id/itens/reorder', async (req: Request, res: Response) => {
-  try {
-    const repository = getItemRoteiroRepository();
-    const useCase = new ReordenarItensUseCase(repository);
-
-    const roteiroId = parseInt(req.params.id);
-    await useCase.executar(roteiroId, req.body.item_ids);
-
-    res.json({ message: 'Ordem atualizada com sucesso' });
   } catch (error) {
     if (error instanceof Error) {
       try {
