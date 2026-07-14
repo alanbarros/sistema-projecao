@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      'shared': path.resolve(__dirname, '../shared/enums.ts')
+      'shared': path.resolve(__dirname, '../shared')
     }
   },
   server: {
@@ -15,6 +15,10 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:3001',
         changeOrigin: true
+      },
+      '/ws': {
+        target: 'ws://localhost:3001',
+        ws: true
       }
     }
   }

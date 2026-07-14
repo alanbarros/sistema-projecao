@@ -158,7 +158,7 @@ O padrão SHALL ser marca d'água ativa (true).
 
 O sistema SHALL fornecer uma interface para listar, criar, editar e gerenciar Roteiros.
 
-A interface SHALL exibir a lista de roteiros com título e data, e SHALL permitir acessar o editor de cada roteiro.
+A interface SHALL exibir a lista de roteiros com título e data, e SHALL permitir acessar o editor de cada roteiro. O editor de Roteiro SHALL incluir um acionamento explícito para iniciar o Modo Play do Roteiro atual.
 
 #### Scenario: Acessar editor de roteiro
 
@@ -175,3 +175,8 @@ A interface SHALL exibir a lista de roteiros com título e data, e SHALL permiti
 - **WHEN** houver mais de 20 roteiros cadastrados
 - **THEN** o sistema SHALL exibir controles de paginação
 - **AND** SHALL permitir navegar entre páginas
+
+#### Scenario: Iniciar Modo Play a partir do editor
+
+- **WHEN** o operador acionar o comando de Play no editor do Roteiro
+- **THEN** o sistema SHALL navegar para a tela do Modo Play com o primeiro ItemRoteiro ativo

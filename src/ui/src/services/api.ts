@@ -1,6 +1,6 @@
-import { ItemType, BlockType, ITEM_TYPES, BLOCK_TYPES } from 'shared';
+import { ItemType, BlockType, MomentoLiturgico, ITEM_TYPES, BLOCK_TYPES, MOMENTOS_LITURGICOS } from 'shared';
 
-export { ItemType, BlockType, ITEM_TYPES, BLOCK_TYPES };
+export { ItemType, BlockType, MomentoLiturgico, ITEM_TYPES, BLOCK_TYPES, MOMENTOS_LITURGICOS };
 
 export interface ItemBloco {
   id?: number;
@@ -118,7 +118,7 @@ export interface Roteiro {
   id: number;
   titulo: string;
   descricao?: string;
-  data_celebracao?: string;
+  dataCelebracao?: string;
   itens: ItemRoteiro[];
   created_at: string;
   updated_at: string;
@@ -126,14 +126,14 @@ export interface Roteiro {
 
 export interface ItemRoteiro {
   id: number;
-  roteiro_id: number;
-  item_coletanea_id?: number;
-  titulo_snapshot: string;
-  tipo_snapshot: ItemType;
-  momento_liturgico?: string;
+  roteiroId: number;
+  itemColetaneaId?: number;
+  tituloSnapshot: string;
+  tipoSnapshot: ItemType;
+  momentoLiturgico?: string;
   posicao: number;
-  is_ad_hoc: boolean;
-  marca_agua_ativa: boolean;
+  isAdHoc: boolean;
+  marcaAguaAtiva: boolean;
   blocos: ItemRoteiroBloco[];
   created_at: string;
 }
@@ -238,8 +238,8 @@ export async function excluirRoteiro(id: number): Promise<void> {
 }
 
 export interface AdicionarItemRoteiroDTO {
-  item_coletanea_id: number;
-  momento_liturgico?: string;
+  itemColetaneaId: number;
+  momentoLiturgico?: string;
 }
 
 export async function adicionarItemAoRoteiro(roteiroId: number, dados: AdicionarItemRoteiroDTO): Promise<ItemRoteiro> {
@@ -283,8 +283,8 @@ export async function criarItemAdHoc(roteiroId: number, dados: CriarItemAdHocDTO
 }
 
 export interface AtualizarItemRoteiroDTO {
-  momento_liturgico?: string | null;
-  marca_agua_ativa?: boolean;
+  momentoLiturgico?: string | null;
+  marcaAguaAtiva?: boolean;
 }
 
 export async function atualizarItemRoteiro(roteiroId: number, itemId: number, dados: AtualizarItemRoteiroDTO): Promise<ItemRoteiro> {

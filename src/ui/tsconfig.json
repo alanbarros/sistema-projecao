@@ -17,7 +17,7 @@
     "noFallthroughCasesInSwitch": true,
     "baseUrl": ".",
     "paths": {
-      "shared": ["../shared/enums.ts"],
+      "shared": ["../shared"],
       "shared/*": ["../shared/*"]
     }
   },

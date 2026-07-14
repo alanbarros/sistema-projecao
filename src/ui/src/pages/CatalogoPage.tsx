@@ -62,9 +62,14 @@ export function CatalogoPage() {
     <div className="catalogo-page">
       <div className="page-header">
         <h1>Catálogo de Itens</h1>
-        <Link to="/novo" className="btn btn-primary">
-          Novo Item
-        </Link>
+        <div className="header-actions">
+          <Link to="/roteiros" className="btn btn-secondary">
+            Roteiros
+          </Link>
+          <Link to="/novo" className="btn btn-primary">
+            Novo Item
+          </Link>
+        </div>
       </div>
 
       <div className="filtros">

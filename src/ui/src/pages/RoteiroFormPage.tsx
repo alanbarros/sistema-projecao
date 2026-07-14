@@ -27,7 +27,7 @@ export function RoteiroFormPage() {
       const roteiro = await buscarRoteiroPorId(roteiroId);
       setTitulo(roteiro.titulo);
       setDescricao(roteiro.descricao || '');
-      setDataCelebracao(roteiro.data_celebracao || '');
+      setDataCelebracao(roteiro.dataCelebracao || '');
     } catch (error) {
       console.error('Erro ao carregar roteiro:', error);
     } finally {

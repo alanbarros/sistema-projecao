@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import {
   buscarRoteiroPorId,
   Roteiro,
@@ -12,11 +12,13 @@ import {
   atualizarItemRoteiro,
   ItemType,
   BlockType,
+  MomentoLiturgico,
 } from '../services/api';
 import { Layout } from '../components/Layout';
 
 export function RoteiroEditorPage() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const [roteiro, setRoteiro] = useState<Roteiro | null>(null);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
@@ -62,7 +64,7 @@ export function RoteiroEditorPage() {
   const handleAdicionarDoCatalogo = async (itemColetaneaId: number) => {
     if (!id) return;
     try {
-      await adicionarItemAoRoteiro(parseInt(id), { item_coletanea_id: itemColetaneaId });
+      await adicionarItemAoRoteiro(parseInt(id), { itemColetaneaId });
       setShowModalCatalogo(false);
       setBuscaCatalogo('');
       await carregarRoteiro();
@@ -126,7 +128,7 @@ export function RoteiroEditorPage() {
     if (!id) return;
     try {
       await atualizarItemRoteiro(parseInt(id), itemId, {
-        momento_liturgico: valorMomento || null
+        momentoLiturgico: valorMomento || null
       });
       setMomentoEditando(null);
       await carregarRoteiro();
@@ -139,7 +141,7 @@ export function RoteiroEditorPage() {
     if (!id) return;
     try {
       await atualizarItemRoteiro(parseInt(id), itemId, {
-        marca_agua_ativa: !marcaAguaAtiva
+        marcaAguaAtiva: !marcaAguaAtiva
       });
       await carregarRoteiro();
     } catch (error) {
@@ -177,11 +179,14 @@ export function RoteiroEditorPage() {
               ← Voltar para Roteiros
             </Link>
             <h1>{roteiro.titulo}</h1>
-            {roteiro.data_celebracao && (
-              <p className="data-celebracao">{roteiro.data_celebracao}</p>
+            {roteiro.dataCelebracao && (
+              <p className="data-celebracao">{roteiro.dataCelebracao}</p>
             )}
           </div>
           <div className="editor-acoes">
+            <button onClick={() => navigate(`/roteiros/${id}/play`)} className="btn btn-primary">
+              Iniciar Play
+            </button>
             <button onClick={abrirModalCatalogo} className="btn btn-primary">
               Adicionar do Catálogo
             </button>
@@ -307,10 +312,10 @@ export function RoteiroEditorPage() {
                 {roteiro.itens.map((item, index) => (
                   <tr key={item.id}>
                     <td>{item.posicao}</td>
-                    <td>{item.titulo_snapshot}</td>
+                    <td>{item.tituloSnapshot}</td>
                     <td>
-                      <span className="tipo-badge">{item.tipo_snapshot}</span>
-                      {item.is_ad_hoc && <span className="ad-hoc-badge">Ad-Hoc</span>}
+                      <span className="tipo-badge">{item.tipoSnapshot}</span>
+                      {item.isAdHoc && <span className="ad-hoc-badge">Ad-Hoc</span>}
                     </td>
                     <td>
                       {momentoEditando === item.id ? (
@@ -320,14 +325,9 @@ export function RoteiroEditorPage() {
                             onChange={(e) => setValorMomento(e.target.value)}
                           >
                             <option value="">Nenhum</option>
-                            <option value="Entrada">Entrada</option>
-                            <option value="Ofertório">Ofertório</option>
-                            <option value="Comunhão">Comunhão</option>
-                            <option value="Preparação">Preparação</option>
-                            <option value="Ato Penitencial">Ato Penitencial</option>
-                            <option value="Aclamação">Aclamação</option>
-                            <option value="Oração dos Fiéis">Oração dos Fiéis</option>
-                            <option value="Outro">Outro</option>
+                            {Object.values(MomentoLiturgico).map((m) => (
+                              <option key={m} value={m}>{m}</option>
+                            ))}
                           </select>
                           <button
                             onClick={() => handleSalvarMomento(item.id)}
@@ -346,21 +346,23 @@ export function RoteiroEditorPage() {
                         <span
                           onClick={() => {
                             setMomentoEditando(item.id);
-                            setValorMomento(item.momento_liturgico || '');
+                            setValorMomento(item.momentoLiturgico || '');
                           }}
                           className="editar-link"
                         >
-                          {item.momento_liturgico || '-'}
+                          {item.momentoLiturgico || '-'}
                         </span>
                       )}
                     </td>
                     <td>
-                      <button
-                        onClick={() => handleToggleMarcaAgua(item.id, item.marca_agua_ativa)}
-                        className={`toggle-btn ${item.marca_agua_ativa ? 'ativo' : ''}`}
-                      >
-                        {item.marca_agua_ativa ? 'Ativa' : 'Inativa'}
-                      </button>
+                      <label className="checkbox-label">
+                        <input
+                          type="checkbox"
+                          checked={item.marcaAguaAtiva}
+                          onChange={() => handleToggleMarcaAgua(item.id, item.marcaAguaAtiva)}
+                        />
+                        <span>{item.marcaAguaAtiva ? 'Ativa' : 'Inativa'}</span>
+                      </label>
                     </td>
                     <td>
                       <div className="acoes">

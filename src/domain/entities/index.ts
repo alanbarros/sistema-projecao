@@ -3,3 +3,5 @@ export * from './ItemBloco';
 export * from './Roteiro';
 export * from './ItemRoteiro';
 export * from './ItemRoteiroBloco';
+export * from './Slide';
+export * from './ProjectionState';

@@ -45,9 +45,14 @@ export function RoteirosPage() {
       <div className="catalogo-page">
         <div className="catalogo-header">
           <h1>Roteiros</h1>
-          <Link to="/roteiros/novo" className="btn btn-primary">
-            Novo Roteiro
-          </Link>
+          <div className="header-actions">
+            <Link to="/" className="btn btn-secondary">
+              Catálogo
+            </Link>
+            <Link to="/roteiros/novo" className="btn btn-primary">
+              Novo Roteiro
+            </Link>
+          </div>
         </div>
 
         <div className="catalogo-filtros">
@@ -87,7 +92,7 @@ export function RoteirosPage() {
                     {roteiros.map((roteiro) => (
                       <tr key={roteiro.id}>
                         <td>{roteiro.titulo}</td>
-                        <td>{roteiro.data_celebracao || '-'}</td>
+                        <td>{roteiro.dataCelebracao || '-'}</td>
                         <td>
                           <div className="acoes">
                             <Link
