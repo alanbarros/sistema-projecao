@@ -10,6 +10,7 @@ import { CriarItemAdHocUseCase } from '../../application/use-cases/CriarItemAdHo
 import { AtualizarItemRoteiroUseCase } from '../../application/use-cases/AtualizarItemRoteiroUseCase';
 import { RemoverItemDoRoteiroUseCase } from '../../application/use-cases/RemoverItemDoRoteiroUseCase';
 import { ReordenarItensUseCase } from '../../application/use-cases/ReordenarItensUseCase';
+import { ExtrairAdHocParaCatalogoUseCase } from '../../application/use-cases/ExtrairAdHocParaCatalogoUseCase';
 
 const router = Router();
 
@@ -242,6 +243,32 @@ router.delete('/:id/itens/:itemId', async (req: Request, res: Response) => {
     await useCase.executar(itemId);
 
     res.status(204).send();
+  } catch (error) {
+    if (error instanceof Error) {
+      try {
+        const parsed = JSON.parse(error.message);
+        const status = parsed.error.includes('não encontrado') ? 404 : 400;
+        res.status(status).json(parsed);
+      } catch {
+        res.status(500).json({ error: 'Erro interno do servidor' });
+      }
+    } else {
+      res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+  }
+});
+
+router.post('/:id/itens/:itemId/salvar-no-catalogo', async (req: Request, res: Response) => {
+  try {
+    const itemRoteiroRepository = getItemRoteiroRepository();
+    const itemColetaneaRepository = getRepository();
+    const useCase = new ExtrairAdHocParaCatalogoUseCase(itemRoteiroRepository, itemColetaneaRepository);
+
+    const roteiroId = parseInt(req.params.id);
+    const itemId = parseInt(req.params.itemId);
+    const item = await useCase.executar(roteiroId, itemId, req.body);
+
+    res.status(201).json(item);
   } catch (error) {
     if (error instanceof Error) {
       try {

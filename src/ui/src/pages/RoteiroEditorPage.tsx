@@ -15,6 +15,8 @@ import {
 } from '../services/api';
 import { Layout } from '../components/Layout';
 import { BlocoEditor, BlocoForm } from '../components/BlocoEditor';
+import { Toast } from '../components/Toast';
+import { ModalSalvarNoCatalogo } from '../components/ModalSalvarNoCatalogo';
 
 export function RoteiroEditorPage() {
   const { id } = useParams<{ id: string }>();
@@ -36,6 +38,9 @@ export function RoteiroEditorPage() {
 
   const [editandoItem, setEditandoItem] = useState<number | null>(null);
   const [editBlocos, setEditBlocos] = useState<BlocoForm[]>([]);
+
+  const [salvandoItem, setSalvandoItem] = useState<number | null>(null);
+  const [toastMensagem, setToastMensagem] = useState<string | null>(null);
 
   const carregarRoteiro = useCallback(async () => {
     if (!id) return;
@@ -360,6 +365,15 @@ export function RoteiroEditorPage() {
                   </p>
                 </div>
                 <div className="route-actions">
+                  {item.isAdHoc && (
+                    <button
+                      onClick={() => setSalvandoItem(item.id)}
+                      className="icon-button"
+                      title="Salvar no catálogo"
+                    >
+                      💾
+                    </button>
+                  )}
                   <button
                     onClick={() => abrirEdicaoBlocos(item.id)}
                     className="icon-button"
@@ -417,6 +431,30 @@ export function RoteiroEditorPage() {
           </button>
         </div>
       </div>
+
+      {salvandoItem !== null && (() => {
+        const item = roteiro.itens.find(i => i.id === salvandoItem);
+        if (!item) return null;
+        return (
+          <ModalSalvarNoCatalogo
+            roteiroId={parseInt(id!)}
+            itemId={item.id}
+            tituloInicial={item.tituloSnapshot}
+            tipoInicial={item.tipoSnapshot}
+            blocos={item.blocos}
+            onSucesso={() => {
+              setSalvandoItem(null);
+              setToastMensagem('Salvo no catálogo!');
+              carregarRoteiro();
+            }}
+            onFechar={() => setSalvandoItem(null)}
+          />
+        );
+      })()}
+
+      {toastMensagem && (
+        <Toast mensagem={toastMensagem} onFechar={() => setToastMensagem(null)} />
+      )}
     </Layout>
   );
 }

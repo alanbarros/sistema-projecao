@@ -330,3 +330,25 @@ export async function reordenarItens(roteiroId: number, itemIds: number[]): Prom
     throw new Error(JSON.stringify(error));
   }
 }
+
+export interface SalvarAdHocNoCatalogoDTO {
+  titulo: string;
+  tipo: ItemType;
+}
+
+export async function salvarAdHocNoCatalogo(roteiroId: number, itemId: number, dados: SalvarAdHocNoCatalogoDTO): Promise<ItemColetanea> {
+  const response = await fetch(`${API_BASE}/roteiros/${roteiroId}/itens/${itemId}/salvar-no-catalogo`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(dados)
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(JSON.stringify(error));
+  }
+  
+  return response.json();
+}
