@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { WEBSOCKET_EVENTS } from 'shared';
 
+// ProjectionState do hook — subset do tipo de domínio (sem roteiroId).
+// itensComSlide usa Record<number, number> para compatibilidade com JSON.stringify/parse no WebSocket.
 interface ProjectionState {
   itemRoteiroId: number;
   slideIndice: number;
   totalSlides: number;
-  itensComSlide: Map<number, number>;
+  itensComSlide: Record<number, number>;
 }
 
 interface UseProjectionWebSocketProps {

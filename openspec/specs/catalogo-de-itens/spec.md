@@ -96,6 +96,12 @@ A interface SHALL exibir os itens como um grid responsivo de cards (`repeat(auto
 
 A interface SHALL incluir um toolbar com campo de busca (max-width 470px) e seletor de tipo dentro de um container card. O cabeçalho SHALL usar o padrão eyebrow (texto pequeno uppercase) + título h2 + descrição + botão de ação.
 
+O preview de slides SHALL usar o motor `gerarSlides()` para gerar slides a partir dos blocos, respeitando o limite de caracteres e a coerência semântica.
+
+O preview SHALL exibir todos os slides gerados com controles de navegação (anterior/próximo) e indicador de posição atual (ex: "Slide 2 / 5").
+
+O preview SHALL atualizar automaticamente quando o operador editar os blocos no formulário.
+
 #### Scenario: Filtrar itens por tipo
 
 - **WHEN** o operador selecionar o tipo "Canto" no filtro
@@ -111,6 +117,23 @@ A interface SHALL incluir um toolbar com campo de busca (max-width 470px) e sele
 - **WHEN** houver mais de 20 itens no catálogo
 - **THEN** o sistema SHALL exibir controles de paginação
 - **AND** SHALL permitir navegar entre páginas
+
+#### Scenario: Preview de item com múltiplas estrofes
+
+- **WHEN** o operador criar um ItemColetanea com 3 estrofes que gerem 5 slides
+- **THEN** o preview SHALL exibir os 5 slides com navegação
+- **AND** SHALL mostrar indicador "Slide X / 5"
+
+#### Scenario: Preview atualiza ao editar bloco
+
+- **WHEN** o operador alterar o conteúdo de um bloco no formulário
+- **THEN** o preview SHALL regenerar os slides instantaneamente
+- **AND** SHALL exibir a partir do primeiro slide (a posição pode mudar se o conteúdo anterior crescer ou encolher)
+
+#### Scenario: Preview de item sem blocos
+
+- **WHEN** o operador não tiver adicionado nenhum bloco
+- **THEN** o preview SHALL exibir mensagem "Digite o conteúdo dos blocos para visualizar"
 
 ### Requirement: Paginação de resultados
 

@@ -1,0 +1,25 @@
+## MODIFIED Requirements
+
+### Requirement: Painel operacional e tela do projetor
+
+O sistema SHALL fornecer um painel do operador com layout em grid de 3 colunas: Acervo (mini-items clicáveis), Roteiro (mini-items com item ativo destacado) e Pré-visualização (slide preview com sombra).
+
+Cada coluna SHALL ter um título em uppercase bold, barra de scroll independente e bordas laterais. A coluna de preview SHALL ter fundo sage (#eff2e9) e o slide preview SHALL ter box-shadow e dimensões proporcionais.
+
+O sistema SHALL fornecer uma tela de projetor desacoplada que exiba somente o texto do Slide ativo em tela cheia.
+
+#### Scenario: Exibir slide na tela desacoplada
+
+- **WHEN** o operador selecionar um Slide para projeção
+- **THEN** a tela do projetor SHALL exibir somente o conteúdo do Slide selecionado
+
+#### Scenario: Exibir mini-items no roteiro do Play Mode
+
+- **WHEN** o Modo Play estiver ativo com itens no roteiro
+- **THEN** o sistema SHALL exibir cada item como um mini-item compacto com título, momento litúrgico e contagem de slides
+- **AND** a contagem de slides SHALL refletir o número real de slides gerados pelo motor de slides (não o número de blocos)
+
+#### Scenario: Destacar item ativo no roteiro
+
+- **WHEN** um ItemRoteiro estiver ativo durante o Modo Play
+- **THEN** seu mini-item SHALL ter fundo verde claro (#e0ead8) para indicação visual

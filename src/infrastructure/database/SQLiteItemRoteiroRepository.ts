@@ -150,15 +150,32 @@ export class SQLiteItemRoteiroRepository implements IItemRoteiroRepository {
       updateValues.push(dados.marcaAguaAtiva ? 1 : 0);
     }
 
-    if (updateFields.length === 0) {
+    const hasBlocos = dados.blocos !== undefined;
+
+    if (updateFields.length === 0 && !hasBlocos) {
       return itemExistente;
     }
 
-    const updateQuery = this.db.prepare(
-      `UPDATE item_roteiro SET ${updateFields.join(', ')} WHERE id = ?`
-    );
+    this.db.transaction(() => {
+      if (updateFields.length > 0) {
+        const updateQuery = this.db.prepare(
+          `UPDATE item_roteiro SET ${updateFields.join(', ')} WHERE id = ?`
+        );
+        updateQuery.run(...updateValues, id);
+      }
 
-    updateQuery.run(...updateValues, id);
+      if (hasBlocos) {
+        this.db.prepare('DELETE FROM item_roteiro_bloco WHERE item_roteiro_id = ?').run(id);
+
+        const insertBloco = this.db.prepare(
+          'INSERT INTO item_roteiro_bloco (item_roteiro_id, tipo, conteudo, ordem) VALUES (?, ?, ?, ?)'
+        );
+
+        dados.blocos!.forEach((bloco, index) => {
+          insertBloco.run(id, bloco.tipo, bloco.conteudo, index + 1);
+        });
+      }
+    })();
 
     return this.buscarPorId(id) as Promise<ItemRoteiro>;
   }

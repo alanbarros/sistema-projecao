@@ -249,6 +249,31 @@ select { max-width: 180px; }
 }
 
 /* ============================================================
+   Multi-Slide Preview (Editor)
+   ============================================================ */
+.multi-slide-preview { display: flex; flex-direction: column; gap: 8px; }
+.multi-slide-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 8px 0;
+}
+.multi-slide-indicator {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  min-width: 80px;
+  text-align: center;
+}
+
+/* ============================================================
+   Bloco Editor
+   ============================================================ */
+.bloco-editor { display: flex; flex-direction: column; gap: 12px; }
+.bloco-preview { margin-top: 8px; }
+
+/* ============================================================
    Route List & Cards
    ============================================================ */
 .route-list { display: grid; gap: 10px; }
@@ -308,12 +333,59 @@ select { max-width: 180px; }
   min-height: 0;
 }
 
+.play-grid--two-cols {
+  grid-template-columns: minmax(280px, 1fr) minmax(400px, 2fr);
+}
+
 .play-column {
   border-right: 1px solid var(--line);
   overflow: auto;
   background: #fffefa;
 }
 .play-column:last-child { border: 0; background: #eff2e9; }
+
+.play-column--slides { background: #eff2e9; }
+
+.slides-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0 16px 16px;
+}
+
+.slide-card {
+  display: block;
+  width: 100%;
+  border: 1px solid #d4d8cf;
+  border-radius: 6px;
+  background: var(--moss-deep);
+  color: #f9f6eb;
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+}
+.slide-card:hover { border-color: #a0a898; }
+.slide-card.active { border-color: var(--gold); box-shadow: 0 0 0 2px var(--gold); }
+
+.slide-card-header {
+  padding: 8px 14px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: rgba(249, 246, 235, .6);
+  border-bottom: 1px solid rgba(249, 246, 235, .1);
+}
+
+.slide-card-content {
+  padding: 14px;
+  font-family: Georgia, serif;
+  font-size: 13px;
+  line-height: 1.45;
+  max-height: 120px;
+  overflow: hidden;
+  white-space: pre-line;
+}
 
 .column-title {
   display: flex;
@@ -658,6 +730,7 @@ select { max-width: 180px; }
   .preview { position: static; }
   .play { height: auto; min-height: calc(100vh - 60px); }
   .play-grid { grid-template-columns: 1fr; }
+  .play-grid--two-cols { grid-template-columns: 1fr; }
   .play-column { max-height: 280px; border-right: 0; border-bottom: 1px solid var(--line); }
   .play-preview { min-height: 420px; }
   .play-status { position: sticky; bottom: 0; padding: 12px 16px; }

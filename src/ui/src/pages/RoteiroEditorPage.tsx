@@ -14,6 +14,7 @@ import {
   BlockType,
 } from '../services/api';
 import { Layout } from '../components/Layout';
+import { BlocoEditor, BlocoForm } from '../components/BlocoEditor';
 
 export function RoteiroEditorPage() {
   const { id } = useParams<{ id: string }>();
@@ -29,7 +30,12 @@ export function RoteiroEditorPage() {
   const [showFormAdHoc, setShowFormAdHoc] = useState(false);
   const [adHocTitulo, setAdHocTitulo] = useState('');
   const [adHocTipo, setAdHocTipo] = useState<ItemType>(ItemType.Aviso);
-  const [adHocConteudo, setAdHocConteudo] = useState('');
+  const [adHocBlocos, setAdHocBlocos] = useState<BlocoForm[]>([
+    { tipo: BlockType.Paragrafo, conteudo: '' }
+  ]);
+
+  const [editandoItem, setEditandoItem] = useState<number | null>(null);
+  const [editBlocos, setEditBlocos] = useState<BlocoForm[]>([]);
 
   const carregarRoteiro = useCallback(async () => {
     if (!id) return;
@@ -71,17 +77,20 @@ export function RoteiroEditorPage() {
 
   const handleCriarAdHoc = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!id || !adHocTitulo.trim() || !adHocConteudo.trim()) return;
+    if (!id || !adHocTitulo.trim()) return;
+
+    const blocosValidos = adHocBlocos.filter(b => b.conteudo.trim());
+    if (blocosValidos.length === 0) return;
 
     try {
       await criarItemAdHoc(parseInt(id), {
         titulo: adHocTitulo.trim(),
         tipo: adHocTipo,
-        blocos: [{ tipo: BlockType.Paragrafo, conteudo: adHocConteudo.trim() }]
+        blocos: blocosValidos.map(b => ({ tipo: b.tipo, conteudo: b.conteudo.trim() }))
       });
       setShowFormAdHoc(false);
       setAdHocTitulo('');
-      setAdHocConteudo('');
+      setAdHocBlocos([{ tipo: BlockType.Paragrafo, conteudo: '' }]);
       await carregarRoteiro();
     } catch (error) {
       console.error('Erro ao criar item ad-hoc:', error);
@@ -129,6 +138,27 @@ export function RoteiroEditorPage() {
       await carregarRoteiro();
     } catch (error) {
       console.error('Erro ao atualizar marca d\'água:', error);
+    }
+  };
+
+  const abrirEdicaoBlocos = (itemId: number) => {
+    const item = roteiro?.itens.find(i => i.id === itemId);
+    if (!item) return;
+    setEditandoItem(itemId);
+    setEditBlocos(item.blocos.map(b => ({ tipo: b.tipo, conteudo: b.conteudo })));
+  };
+
+  const handleSalvarBlocos = async () => {
+    if (!id || editandoItem === null) return;
+    try {
+      await atualizarItemRoteiro(parseInt(id), editandoItem, {
+        blocos: editBlocos.map(b => ({ tipo: b.tipo, conteudo: b.conteudo.trim() }))
+      });
+      setEditandoItem(null);
+      setEditBlocos([]);
+      await carregarRoteiro();
+    } catch (error) {
+      console.error('Erro ao salvar blocos:', error);
     }
   };
 
@@ -184,7 +214,7 @@ export function RoteiroEditorPage() {
 
       {showFormAdHoc && (
         <div className="modal-overlay" onClick={() => setShowFormAdHoc(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
+          <div className="modal modal-grande" onClick={(e) => e.stopPropagation()}>
             <h2>Criar Item Ad-Hoc</h2>
             <form onSubmit={handleCriarAdHoc}>
               <div className="field">
@@ -210,12 +240,10 @@ export function RoteiroEditorPage() {
                 </select>
               </div>
               <div className="field">
-                <label>Conteudo *</label>
-                <textarea
-                  value={adHocConteudo}
-                  onChange={(e) => setAdHocConteudo(e.target.value)}
-                  rows={4}
-                  required
+                <label>Conteúdo *</label>
+                <BlocoEditor
+                  blocos={adHocBlocos}
+                  onChange={setAdHocBlocos}
                 />
               </div>
               <div className="modal-acoes">
@@ -231,6 +259,30 @@ export function RoteiroEditorPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {editandoItem !== null && (
+        <div className="modal-overlay" onClick={() => setEditandoItem(null)}>
+          <div className="modal modal-grande" onClick={(e) => e.stopPropagation()}>
+            <h2>Editar Blocos</h2>
+            <BlocoEditor
+              blocos={editBlocos}
+              onChange={setEditBlocos}
+            />
+            <div className="modal-acoes">
+              <button
+                type="button"
+                onClick={() => setEditandoItem(null)}
+                className="button secondary"
+              >
+                Cancelar
+              </button>
+              <button type="button" onClick={handleSalvarBlocos} className="button">
+                Salvar
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -308,6 +360,13 @@ export function RoteiroEditorPage() {
                   </p>
                 </div>
                 <div className="route-actions">
+                  <button
+                    onClick={() => abrirEdicaoBlocos(item.id)}
+                    className="icon-button"
+                    title="Editar blocos"
+                  >
+                    ✎
+                  </button>
                   <label className="checkbox-label" title="Marca d'Agua">
                     <input
                       type="checkbox"

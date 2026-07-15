@@ -1,8 +1,10 @@
+// ProjectionState local do engine — subset do tipo de domínio (sem roteiroId).
+// itensComSlide usa Record<number, number> para compatibilidade com JSON.stringify/parse no WebSocket.
 interface ProjectionState {
   itemRoteiroId: number;
   slideIndice: number;
   totalSlides: number;
-  itensComSlide: Map<number, number>;
+  itensComSlide: Record<number, number>;
 }
 
 export function criarEstadoInicial(primeiroItemRoteiroId: number, totalSlidesPrimeiroItem: number): ProjectionState {
@@ -10,14 +12,13 @@ export function criarEstadoInicial(primeiroItemRoteiroId: number, totalSlidesPri
     itemRoteiroId: primeiroItemRoteiroId,
     slideIndice: 1,
     totalSlides: totalSlidesPrimeiroItem,
-    itensComSlide: new Map([[primeiroItemRoteiroId, totalSlidesPrimeiroItem]]),
+    itensComSlide: { [primeiroItemRoteiroId]: totalSlidesPrimeiroItem },
   };
 }
 
-export function navegarParaProximo(estado: ProjectionState, itens: Array<{ id: number; totalSlides: number }>): ProjectionState {
+export function navegarParaProximo(estado: ProjectionState, itens: Record<number, number>): ProjectionState {
   const { itemRoteiroId, slideIndice } = estado;
-  const itemAtual = itens.find((item) => item.id === itemRoteiroId);
-  const totalSlidesAtual = itemAtual?.totalSlides || 0;
+  const totalSlidesAtual = itens[itemRoteiroId] || 0;
 
   if (slideIndice < totalSlidesAtual) {
     return {
@@ -26,24 +27,24 @@ export function navegarParaProximo(estado: ProjectionState, itens: Array<{ id: n
     };
   }
 
-  const indiceItemAtual = itens.findIndex((item) => item.id === itemRoteiroId);
-  if (indiceItemAtual < itens.length - 1) {
-    const proximoItem = itens[indiceItemAtual + 1];
-    const novosItensComSlide = new Map(estado.itensComSlide);
-    novosItensComSlide.set(proximoItem.id, proximoItem.totalSlides);
+  const itemIds = Object.keys(itens).map(Number);
+  const indiceItemAtual = itemIds.indexOf(itemRoteiroId);
+  if (indiceItemAtual < itemIds.length - 1) {
+    const proximoItemId = itemIds[indiceItemAtual + 1];
+    const proximoTotalSlides = itens[proximoItemId];
     return {
       ...estado,
-      itemRoteiroId: proximoItem.id,
+      itemRoteiroId: proximoItemId,
       slideIndice: 1,
-      totalSlides: proximoItem.totalSlides,
-      itensComSlide: novosItensComSlide,
+      totalSlides: proximoTotalSlides,
+      itensComSlide: { ...estado.itensComSlide, [proximoItemId]: proximoTotalSlides },
     };
   }
 
   return estado;
 }
 
-export function navegarParaAnterior(estado: ProjectionState, itens: Array<{ id: number; totalSlides: number }>): ProjectionState {
+export function navegarParaAnterior(estado: ProjectionState, itens: Record<number, number>): ProjectionState {
   const { itemRoteiroId, slideIndice } = estado;
 
   if (slideIndice > 1) {
@@ -53,17 +54,17 @@ export function navegarParaAnterior(estado: ProjectionState, itens: Array<{ id: 
     };
   }
 
-  const indiceItemAtual = itens.findIndex((item) => item.id === itemRoteiroId);
+  const itemIds = Object.keys(itens).map(Number);
+  const indiceItemAtual = itemIds.indexOf(itemRoteiroId);
   if (indiceItemAtual > 0) {
-    const itemAnterior = itens[indiceItemAtual - 1];
-    const novosItensComSlide = new Map(estado.itensComSlide);
-    novosItensComSlide.set(itemAnterior.id, itemAnterior.totalSlides);
+    const itemAnteriorId = itemIds[indiceItemAtual - 1];
+    const itemAnteriorTotalSlides = itens[itemAnteriorId];
     return {
       ...estado,
-      itemRoteiroId: itemAnterior.id,
-      slideIndice: itemAnterior.totalSlides,
-      totalSlides: itemAnterior.totalSlides,
-      itensComSlide: novosItensComSlide,
+      itemRoteiroId: itemAnteriorId,
+      slideIndice: itemAnteriorTotalSlides,
+      totalSlides: itemAnteriorTotalSlides,
+      itensComSlide: { ...estado.itensComSlide, [itemAnteriorId]: itemAnteriorTotalSlides },
     };
   }
 
@@ -71,12 +72,9 @@ export function navegarParaAnterior(estado: ProjectionState, itens: Array<{ id: 
 }
 
 export function atualizarTotalSlides(estado: ProjectionState, itemRoteiroId: number, totalSlides: number): ProjectionState {
-  const novosItensComSlide = new Map(estado.itensComSlide);
-  novosItensComSlide.set(itemRoteiroId, totalSlides);
-
   return {
     ...estado,
     totalSlides: itemRoteiroId === estado.itemRoteiroId ? totalSlides : estado.totalSlides,
-    itensComSlide: novosItensComSlide,
+    itensComSlide: { ...estado.itensComSlide, [itemRoteiroId]: totalSlides },
   };
 }

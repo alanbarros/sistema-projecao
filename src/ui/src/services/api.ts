@@ -285,6 +285,7 @@ export async function criarItemAdHoc(roteiroId: number, dados: CriarItemAdHocDTO
 export interface AtualizarItemRoteiroDTO {
   momentoLiturgico?: string | null;
   marcaAguaAtiva?: boolean;
+  blocos?: { tipo: BlockType; conteudo: string }[];
 }
 
 export async function atualizarItemRoteiro(roteiroId: number, itemId: number, dados: AtualizarItemRoteiroDTO): Promise<ItemRoteiro> {

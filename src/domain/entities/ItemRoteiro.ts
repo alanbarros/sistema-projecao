@@ -29,4 +29,5 @@ export interface CriarItemRoteiroAdHocDTO {
 export interface AtualizarItemRoteiroDTO {
   momentoLiturgico?: MomentoLiturgico | null;
   marcaAguaAtiva?: boolean;
+  blocos?: CriarItemRoteiroBlocoDTO[];
 }

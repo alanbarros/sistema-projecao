@@ -1,7 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useProjection } from '../hooks/useProjection';
 import { abrirProjecao } from '../services/projector';
+import { gerarSlides } from '../engine/slideEngine';
 import { BlockType } from 'shared';
 
 interface ItemRoteiroBloco {
@@ -34,7 +35,6 @@ export function PlayModePage() {
   const [roteiro, setRoteiro] = useState<Roteiro | null>(null);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
-  const [buscaAcervo, setBuscaAcervo] = useState('');
 
   const carregarRoteiro = useCallback(async () => {
     if (!id) return;
@@ -55,7 +55,7 @@ export function PlayModePage() {
     carregarRoteiro();
   }, [carregarRoteiro]);
 
-  const { projectionState, currentSlide, isConnected, navigateNext, navigatePrev, jumpToItem } = useProjection({
+  const { projectionState, isConnected, navigateNext, navigatePrev, jumpToItem } = useProjection({
     roteiroId: parseInt(id || '0'),
     itens: roteiro?.itens.map(item => ({
       id: item.id,
@@ -63,6 +63,16 @@ export function PlayModePage() {
       marcaAguaAtiva: item.marcaAguaAtiva,
     })) || [],
   });
+
+  const itemAtual = useMemo(() => {
+    if (!roteiro || !projectionState) return null;
+    return roteiro.itens.find(i => i.id === projectionState.itemRoteiroId) || null;
+  }, [roteiro, projectionState]);
+
+  const slidesDoItem = useMemo(() => {
+    if (!itemAtual) return [];
+    return gerarSlides(itemAtual.blocos, undefined, itemAtual.marcaAguaAtiva);
+  }, [itemAtual]);
 
   const handleOpenProjector = () => {
     if (id) {
@@ -108,10 +118,6 @@ export function PlayModePage() {
     );
   }
 
-  const itensFiltrados = roteiro.itens.filter(item =>
-    item.tituloSnapshot.toLowerCase().includes(buscaAcervo.toLowerCase())
-  );
-
   return (
     <div className="play-mode-page">
       <div className="play-header">
@@ -132,32 +138,7 @@ export function PlayModePage() {
       </div>
 
       <div className="play">
-        <div className="play-grid">
-          <div className="play-column">
-            <div className="column-title">
-              <span>Acervo</span>
-            </div>
-            <input
-              type="text"
-              placeholder="Buscar itens..."
-              value={buscaAcervo}
-              onChange={(e) => setBuscaAcervo(e.target.value)}
-              className="search compact-search"
-            />
-            <div>
-              {itensFiltrados.map((item) => (
-                <button
-                  key={item.id}
-                  className={`mini-item ${projectionState?.itemRoteiroId === item.id ? 'active' : ''}`}
-                  onClick={() => jumpToItem(item.id)}
-                >
-                  <strong>{item.tituloSnapshot}</strong>
-                  <span>{item.tipoSnapshot} · {item.blocos.length} slide(s)</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
+        <div className="play-grid play-grid--two-cols">
           <div className="play-column">
             <div className="column-title">
               <span>Roteiro</span>
@@ -166,43 +147,61 @@ export function PlayModePage() {
               </span>
             </div>
             <div>
-              {roteiro.itens.map((item) => (
-                <button
-                  key={item.id}
-                  className={`mini-item ${projectionState?.itemRoteiroId === item.id ? 'active' : ''}`}
-                  onClick={() => jumpToItem(item.id)}
-                >
-                  <strong>{item.tituloSnapshot}</strong>
-                  <span>
-                    {item.tipoSnapshot}
-                    {item.momentoLiturgico && ` · ${item.momentoLiturgico}`}
-                    {' · '}{item.blocos.length} slide(s)
-                  </span>
-                </button>
-              ))}
+              {roteiro.itens.map((item) => {
+                const totalSlides = gerarSlides(item.blocos).length;
+                return (
+                  <button
+                    key={item.id}
+                    className={`mini-item ${projectionState?.itemRoteiroId === item.id ? 'active' : ''}`}
+                    onClick={() => jumpToItem(item.id)}
+                  >
+                    <strong>{item.tituloSnapshot}</strong>
+                    <span>
+                      {item.tipoSnapshot}
+                      {item.momentoLiturgico && ` · ${item.momentoLiturgico}`}
+                      {' · '}{totalSlides} slide(s)
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
-          <div className="play-column">
+          <div className="play-column play-column--slides">
             <div className="column-title">
-              <span>Preview</span>
+              <span>Slides</span>
+              {itemAtual && (
+                <span style={{ fontSize: '12px', fontWeight: 400, textTransform: 'none', letterSpacing: 0 }}>
+                  {itemAtual.tituloSnapshot}
+                </span>
+              )}
             </div>
-            <div className="play-preview">
-              {currentSlide ? (
-                <div className="slide-preview">
-                  <div className="slide-text">
-                    {currentSlide.conteudo}
-                  </div>
-                  {currentSlide.marcaAguaAtiva && (
-                    <div className="watermark">Marca d'Agua</div>
-                  )}
-                  <div className="pagination">
-                    {currentSlide.indice}/{currentSlide.total}
-                  </div>
-                </div>
+            <div className="slides-list">
+              {slidesDoItem.length > 0 ? (
+                slidesDoItem.map((slide) => (
+                  <button
+                    key={slide.indice}
+                    className={`slide-card ${projectionState?.slideIndice === slide.indice ? 'active' : ''}`}
+                    onClick={() => {
+                      const diff = slide.indice - (projectionState?.slideIndice || 1);
+                      if (diff > 0) {
+                        for (let i = 0; i < diff; i++) navigateNext();
+                      } else if (diff < 0) {
+                        for (let i = 0; i < Math.abs(diff); i++) navigatePrev();
+                      }
+                    }}
+                  >
+                    <div className="slide-card-header">
+                      Slide {slide.indice}/{slide.total}
+                    </div>
+                    <div className="slide-card-content">
+                      {slide.conteudo}
+                    </div>
+                  </button>
+                ))
               ) : (
-                <div style={{ color: 'var(--muted)', textAlign: 'center' }}>
-                  Selecione um item no roteiro para visualizar
+                <div style={{ color: 'var(--muted)', textAlign: 'center', padding: '30px' }}>
+                  Selecione um item no roteiro para visualizar os slides
                 </div>
               )}
             </div>
@@ -211,7 +210,7 @@ export function PlayModePage() {
 
         <div className="play-status">
           <div className="current">
-            EM EXIBICAO · <strong>{roteiro.itens.find(i => i.id === projectionState?.itemRoteiroId)?.tituloSnapshot || 'Nenhum item'}</strong>
+            EM EXIBICAO · <strong>{itemAtual?.tituloSnapshot || 'Nenhum item'}</strong>
             {projectionState && (
               <> · Slide {projectionState.slideIndice} / {projectionState.totalSlides}</>
             )}

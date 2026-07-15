@@ -20,45 +20,39 @@ export function gerarSlides(blocos: ItemRoteiroBloco[], maxChars: number = MAX_C
   const slides: Slide[] = [];
   let conteudoAtual = '';
 
+  const flush = () => {
+    if (conteudoAtual.trim().length > 0) {
+      slides.push({
+        conteudo: conteudoAtual.trim(),
+        indice: slides.length + 1,
+        total: 0,
+        marcaAguaAtiva,
+      });
+      conteudoAtual = '';
+    }
+  };
+
+  const splitLongContent = (conteudo: string) => {
+    const partes = conteudo.split(/\n\n+/);
+    for (const parte of partes) {
+      if (conteudoAtual.length + parte.length + 2 > maxChars && conteudoAtual.length > 0) {
+        flush();
+      }
+      conteudoAtual += (conteudoAtual ? '\n\n' : '') + parte;
+    }
+  };
+
   for (let i = 0; i < blocos.length; i++) {
     const bloco = blocos[i];
     const ehRefrão = bloco.tipo === BlockType.Refrao;
     const conteudoBloco = bloco.conteudo.trim();
 
     if (ehRefrão && i > 0 && blocos[i - 1].tipo !== BlockType.Refrao) {
-      if (conteudoAtual.length > 0) {
-        slides.push({
-          conteudo: conteudoAtual.trim(),
-          indice: slides.length + 1,
-          total: 0,
-          marcaAguaAtiva,
-        });
-        conteudoAtual = '';
-      }
-      conteudoAtual += (conteudoAtual ? '\n\n' : '') + conteudoBloco;
-    } else if (conteudoAtual.length + conteudoBloco.length + 2 > maxChars) {
-      if (conteudoAtual.length > 0) {
-        slides.push({
-          conteudo: conteudoAtual.trim(),
-          indice: slides.length + 1,
-          total: 0,
-          marcaAguaAtiva,
-        });
-        conteudoAtual = '';
-      }
-      conteudoAtual += conteudoBloco;
-    } else {
-      conteudoAtual += (conteudoAtual ? '\n\n' : '') + conteudoBloco;
+      flush();
     }
-  }
 
-  if (conteudoAtual.trim().length > 0) {
-    slides.push({
-      conteudo: conteudoAtual.trim(),
-      indice: slides.length + 1,
-      total: 0,
-      marcaAguaAtiva,
-    });
+    splitLongContent(conteudoBloco);
+    flush();
   }
 
   const totalSlides = slides.length;
