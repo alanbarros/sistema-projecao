@@ -37,7 +37,7 @@
 ## 6. Verificação
 
 - [x] 6.1 Rodar `cd src/ui && npx tsc --noEmit` para verificar erros de tipo
-- [ ] 6.2 Testar navegação: abrir Play Mode, navegar com setas, verificar que slides avançam/retrocedem corretamente
-- [ ] 6.3 Testar persistência: navegar, recarregar página, verificar que o estado é restaurado
-- [ ] 6.4 Testar sincronização: abrir projetor, navegar no operador, verificar que o projetor atualiza
-- [ ] 6.5 Testar cenário de borda: abrir Play Mode com localStorage contendo `{}` (estado corrompido antigo), verificar que o sistema cria estado inicial limpo
+- [x] 6.2 Testar navegação: abrir Play Mode, navegar com setas, verificar que slides avançam/retrocedem corretamente
+- [x] 6.3 Testar persistência: navegar, recarregar página, verificar que o estado é restaurado
+- [x] 6.4 Testar sincronização: abrir projetor, navegar no operador, verificar que o projetor atualiza
+- [x] 6.5 Testar cenário de borda: abrir Play Mode com localStorage contendo `{}` (estado corrompido antigo), verificar que o sistema cria estado inicial limpo
