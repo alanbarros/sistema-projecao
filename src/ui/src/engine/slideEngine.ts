@@ -14,9 +14,10 @@ interface Slide {
   indice: number;
   total: number;
   marcaAguaAtiva: boolean;
+  marcaAguaSvg?: string;
 }
 
-export function gerarSlides(blocos: ItemRoteiroBloco[], maxChars: number = MAX_CHARS_PER_SLIDE, marcaAguaAtiva: boolean = false): Slide[] {
+export function gerarSlides(blocos: ItemRoteiroBloco[], maxChars: number = MAX_CHARS_PER_SLIDE, marcaAguaAtiva: boolean = false, marcaAguaSvg?: string): Slide[] {
   const slides: Slide[] = [];
   let conteudoAtual = '';
 
@@ -27,6 +28,7 @@ export function gerarSlides(blocos: ItemRoteiroBloco[], maxChars: number = MAX_C
         indice: slides.length + 1,
         total: 0,
         marcaAguaAtiva,
+        marcaAguaSvg,
       });
       conteudoAtual = '';
     }

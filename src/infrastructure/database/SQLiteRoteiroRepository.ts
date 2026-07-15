@@ -33,7 +33,7 @@ export class SQLiteRoteiroRepository implements IRoteiroRepository {
 
   async buscarPorId(id: number): Promise<Roteiro | null> {
     const roteiro = this.db.prepare(
-      'SELECT id, titulo, descricao, data_celebracao, created_at, updated_at FROM roteiro WHERE id = ?'
+      'SELECT id, titulo, descricao, data_celebracao, marca_dagua_id, created_at, updated_at FROM roteiro WHERE id = ?'
     ).get(id) as any;
 
     if (!roteiro) {
@@ -76,6 +76,7 @@ export class SQLiteRoteiroRepository implements IRoteiroRepository {
       titulo: roteiro.titulo,
       descricao: roteiro.descricao,
       dataCelebracao: roteiro.data_celebracao,
+      marcaDaguaId: roteiro.marca_dagua_id,
       itens: itensComBlocos,
       created_at: new Date(roteiro.created_at),
       updated_at: new Date(roteiro.updated_at)
@@ -97,7 +98,7 @@ export class SQLiteRoteiroRepository implements IRoteiroRepository {
     const { total } = this.db.prepare(countQuery).get(...queryParams) as any;
 
     const dataQuery = `
-      SELECT id, titulo, descricao, data_celebracao, created_at, updated_at
+      SELECT id, titulo, descricao, data_celebracao, marca_dagua_id, created_at, updated_at
       FROM roteiro
       ${whereClause}
       ORDER BY data_celebracao DESC, created_at DESC
@@ -111,6 +112,7 @@ export class SQLiteRoteiroRepository implements IRoteiroRepository {
         titulo: r.titulo,
         descricao: r.descricao,
         dataCelebracao: r.data_celebracao,
+        marcaDaguaId: r.marca_dagua_id,
         itens: [],
         created_at: new Date(r.created_at),
         updated_at: new Date(r.updated_at)
@@ -123,10 +125,15 @@ export class SQLiteRoteiroRepository implements IRoteiroRepository {
 
   async criar(dados: CriarRoteiroDTO): Promise<Roteiro> {
     const insertRoteiro = this.db.prepare(
-      'INSERT INTO roteiro (titulo, descricao, data_celebracao) VALUES (?, ?, ?)'
+      'INSERT INTO roteiro (titulo, descricao, data_celebracao, marca_dagua_id) VALUES (?, ?, ?, ?)'
     );
 
-    const result = insertRoteiro.run(dados.titulo, dados.descricao || null, dados.data_celebracao || null);
+    const result = insertRoteiro.run(
+      dados.titulo,
+      dados.descricao || null,
+      dados.data_celebracao || null,
+      dados.marca_dagua_id ?? null
+    );
     const roteiroId = result.lastInsertRowid as number;
 
     return this.buscarPorId(roteiroId) as Promise<Roteiro>;
@@ -154,6 +161,11 @@ export class SQLiteRoteiroRepository implements IRoteiroRepository {
     if (dados.data_celebracao !== undefined) {
       updateFields.push('data_celebracao = ?');
       updateValues.push(dados.data_celebracao);
+    }
+
+    if (dados.marca_dagua_id !== undefined) {
+      updateFields.push('marca_dagua_id = ?');
+      updateValues.push(dados.marca_dagua_id);
     }
 
     updateFields.push('updated_at = CURRENT_TIMESTAMP');

@@ -27,12 +27,14 @@ interface Roteiro {
   titulo: string;
   descricao?: string | null;
   dataCelebracao?: string | null;
+  marcaDaguaId?: number | null;
   itens: ItemRoteiro[];
 }
 
 export function PlayModePage() {
   const { id } = useParams<{ id: string }>();
   const [roteiro, setRoteiro] = useState<Roteiro | null>(null);
+  const [marcaAguaSvg, setMarcaAguaSvg] = useState<string | undefined>(undefined);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
 
@@ -43,6 +45,18 @@ export function PlayModePage() {
       if (!response.ok) throw new Error('Erro ao carregar roteiro');
       const dados = await response.json();
       setRoteiro(dados);
+
+      if (dados.marcaDaguaId) {
+        try {
+          const marcaResponse = await fetch(`/api/marcas-dagua/${dados.marcaDaguaId}`);
+          if (marcaResponse.ok) {
+            const marca = await marcaResponse.json();
+            setMarcaAguaSvg(marca.conteudo_svg);
+          }
+        } catch {
+          console.error('Erro ao carregar marca d\'água');
+        }
+      }
     } catch (error) {
       console.error('Erro ao carregar roteiro:', error);
       setErro('Erro ao carregar roteiro');
@@ -62,6 +76,7 @@ export function PlayModePage() {
       blocos: item.blocos,
       marcaAguaAtiva: item.marcaAguaAtiva,
     })) || [],
+    marcaAguaSvg,
   });
 
   const itemAtual = useMemo(() => {

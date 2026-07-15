@@ -41,6 +41,14 @@ export function Layout({ children, pageTitle, breadcrumb }: LayoutProps) {
               Celebracoes
             </button>
           </Link>
+          <Link
+            to="/marcas-dagua"
+            style={{ textDecoration: 'none' }}
+          >
+            <button className={isActive('/marcas-dagua') ? 'active' : ''}>
+              Marcas d'Agua
+            </button>
+          </Link>
         </nav>
 
         <div className="sidebar-foot">

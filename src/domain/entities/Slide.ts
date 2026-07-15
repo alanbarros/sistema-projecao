@@ -3,4 +3,5 @@ export interface Slide {
   indice: number;
   total: number;
   marcaAguaAtiva: boolean;
+  marcaAguaSvg?: string;
 }

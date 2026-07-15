@@ -21,12 +21,14 @@ interface ItemRoteiro {
 interface Roteiro {
   id: number;
   titulo: string;
+  marcaDaguaId?: number | null;
   itens: ItemRoteiro[];
 }
 
 export function ProjectorPage() {
   const { roteiroId } = useParams<{ roteiroId: string }>();
   const [roteiro, setRoteiro] = useState<Roteiro | null>(null);
+  const [marcaAguaSvg, setMarcaAguaSvg] = useState<string | undefined>(undefined);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
 
@@ -37,6 +39,18 @@ export function ProjectorPage() {
       if (!response.ok) throw new Error('Erro ao carregar roteiro');
       const dados = await response.json();
       setRoteiro(dados);
+
+      if (dados.marcaDaguaId) {
+        try {
+          const marcaResponse = await fetch(`/api/marcas-dagua/${dados.marcaDaguaId}`);
+          if (marcaResponse.ok) {
+            const marca = await marcaResponse.json();
+            setMarcaAguaSvg(marca.conteudo_svg);
+          }
+        } catch {
+          console.error('Erro ao carregar marca d\'água');
+        }
+      }
     } catch (error) {
       console.error('Erro ao carregar roteiro:', error);
       setErro('Erro ao carregar roteiro');
@@ -52,6 +66,7 @@ export function ProjectorPage() {
   const { currentSlide } = useProjection({
     roteiroId: parseInt(roteiroId || '0'),
     itens: roteiro?.itens || [],
+    marcaAguaSvg,
   });
 
   const handleKeyPress = useCallback((e: KeyboardEvent) => {
@@ -100,13 +115,12 @@ export function ProjectorPage() {
             {currentSlide.conteudo}
           </div>
           
-          {currentSlide.marcaAguaAtiva && (
-            <div 
+          {currentSlide.marcaAguaAtiva && currentSlide.marcaAguaSvg && (
+            <div
               className="projector-watermark"
               style={{ opacity: PROJECTION_DEFAULTS.WATERMARK_OPACITY }}
-            >
-              Marca d'Agua
-            </div>
+              dangerouslySetInnerHTML={{ __html: currentSlide.marcaAguaSvg }}
+            />
           )}
           
           <div className="projector-page">

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { criarRoteiro, atualizarRoteiro, buscarRoteiroPorId } from '../services/api';
+import { criarRoteiro, atualizarRoteiro, buscarRoteiroPorId, listarMarcasDagua, MarcaDagua } from '../services/api';
 import { Layout } from '../components/Layout';
 
 export function RoteiroFormPage() {
@@ -11,15 +11,27 @@ export function RoteiroFormPage() {
   const [titulo, setTitulo] = useState('');
   const [descricao, setDescricao] = useState('');
   const [dataCelebracao, setDataCelebracao] = useState('');
+  const [marcaDaguaId, setMarcaDaguaId] = useState<number | null>(null);
+  const [marcasDisponiveis, setMarcasDisponiveis] = useState<MarcaDagua[]>([]);
   const [erros, setErros] = useState<Record<string, string>>({});
   const [carregando, setCarregando] = useState(false);
   const [salvando, setSalvando] = useState(false);
 
   useEffect(() => {
+    carregarMarcas();
     if (isEdicao && id) {
       carregarRoteiro(parseInt(id));
     }
   }, [id, isEdicao]);
+
+  const carregarMarcas = async () => {
+    try {
+      const marcas = await listarMarcasDagua();
+      setMarcasDisponiveis(marcas);
+    } catch (error) {
+      console.error('Erro ao carregar marcas d\'água:', error);
+    }
+  };
 
   const carregarRoteiro = async (roteiroId: number) => {
     setCarregando(true);
@@ -28,6 +40,7 @@ export function RoteiroFormPage() {
       setTitulo(roteiro.titulo);
       setDescricao(roteiro.descricao || '');
       setDataCelebracao(roteiro.dataCelebracao || '');
+      setMarcaDaguaId((roteiro as any).marcaDaguaId ?? null);
     } catch (error) {
       console.error('Erro ao carregar roteiro:', error);
     } finally {
@@ -64,7 +77,8 @@ export function RoteiroFormPage() {
       const dados = {
         titulo: titulo.trim(),
         descricao: descricao.trim() || undefined,
-        data_celebracao: dataCelebracao || undefined
+        data_celebracao: dataCelebracao || undefined,
+        marca_dagua_id: marcaDaguaId
       };
 
       if (isEdicao && id) {
@@ -158,6 +172,22 @@ export function RoteiroFormPage() {
               value={dataCelebracao}
               onChange={(e) => setDataCelebracao(e.target.value)}
             />
+          </div>
+
+          <div className="field">
+            <label htmlFor="marcaDagua">Marca d'Água</label>
+            <select
+              id="marcaDagua"
+              value={marcaDaguaId ?? ''}
+              onChange={(e) => setMarcaDaguaId(e.target.value ? Number(e.target.value) : null)}
+            >
+              <option value="">Nenhuma</option>
+              {marcasDisponiveis.map((marca) => (
+                <option key={marca.id} value={marca.id}>
+                  {marca.titulo}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '8px' }}>

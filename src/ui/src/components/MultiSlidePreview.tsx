@@ -9,9 +9,10 @@ interface BlocoInput {
 
 interface MultiSlidePreviewProps {
   blocos: BlocoInput[];
+  marcaAguaSvg?: string;
 }
 
-export function MultiSlidePreview({ blocos }: MultiSlidePreviewProps) {
+export function MultiSlidePreview({ blocos, marcaAguaSvg }: MultiSlidePreviewProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const slides = useMemo(() => {
@@ -24,8 +25,8 @@ export function MultiSlidePreview({ blocos }: MultiSlidePreviewProps) {
         conteudo: b.conteudo,
         ordem: i + 1,
       }));
-    return gerarSlides(blocosComOrdem);
-  }, [blocos]);
+    return gerarSlides(blocosComOrdem, undefined, false, marcaAguaSvg);
+  }, [blocos, marcaAguaSvg]);
 
   if (slides.length === 0) {
     return (

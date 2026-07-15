@@ -190,6 +190,7 @@ export interface CriarRoteiroDTO {
   titulo: string;
   descricao?: string;
   data_celebracao?: string;
+  marca_dagua_id?: number | null;
 }
 
 export async function criarRoteiro(dados: CriarRoteiroDTO): Promise<Roteiro> {
@@ -351,4 +352,84 @@ export async function salvarAdHocNoCatalogo(roteiroId: number, itemId: number, d
   }
   
   return response.json();
+}
+
+export interface MarcaDagua {
+  id: number;
+  titulo: string;
+  conteudo_svg: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CriarMarcaDaguaDTO {
+  titulo: string;
+  conteudo_svg: string;
+}
+
+export async function listarMarcasDagua(): Promise<MarcaDagua[]> {
+  const response = await fetch(`${API_BASE}/marcas-dagua`);
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Erro ao listar marcas d\'água');
+  }
+  
+  return response.json();
+}
+
+export async function buscarMarcaDaguaPorId(id: number): Promise<MarcaDagua> {
+  const response = await fetch(`${API_BASE}/marcas-dagua/${id}`);
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Erro ao buscar marca d\'água');
+  }
+  
+  return response.json();
+}
+
+export async function criarMarcaDagua(dados: CriarMarcaDaguaDTO): Promise<MarcaDagua> {
+  const response = await fetch(`${API_BASE}/marcas-dagua`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(dados)
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(JSON.stringify(error));
+  }
+  
+  return response.json();
+}
+
+export async function atualizarMarcaDagua(id: number, dados: Partial<CriarMarcaDaguaDTO>): Promise<MarcaDagua> {
+  const response = await fetch(`${API_BASE}/marcas-dagua/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(dados)
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(JSON.stringify(error));
+  }
+  
+  return response.json();
+}
+
+export async function excluirMarcaDagua(id: number): Promise<void> {
+  const response = await fetch(`${API_BASE}/marcas-dagua/${id}`, {
+    method: 'DELETE'
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Erro ao excluir marca d\'água');
+  }
 }

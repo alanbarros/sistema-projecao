@@ -23,6 +23,7 @@ interface Slide {
   indice: number;
   total: number;
   marcaAguaAtiva: boolean;
+  marcaAguaSvg?: string;
 }
 
 // ProjectionState do hook — subset do tipo de domínio (sem roteiroId).
@@ -37,6 +38,7 @@ interface ProjectionState {
 interface UseProjectionProps {
   roteiroId: number;
   itens: ItemRoteiro[];
+  marcaAguaSvg?: string;
 }
 
 function salvarEstadoLocalStorage(roteiroId: number, estado: ProjectionState): void {
@@ -75,7 +77,7 @@ function carregarEstadoLocalStorage(roteiroId: number): ProjectionState | null {
   }
 }
 
-export function useProjection({ roteiroId, itens }: UseProjectionProps) {
+export function useProjection({ roteiroId, itens, marcaAguaSvg }: UseProjectionProps) {
   const [projectionState, setProjectionState] = useState<ProjectionState | null>(null);
   const [currentSlide, setCurrentSlide] = useState<Slide | null>(null);
 
@@ -97,12 +99,12 @@ export function useProjection({ roteiroId, itens }: UseProjectionProps) {
         setProjectionState(estadoSalvo);
         const itemAtual = itens.find(item => item.id === estadoSalvo.itemRoteiroId);
         if (itemAtual) {
-          const slides = gerarSlides(itemAtual.blocos, undefined, itemAtual.marcaAguaAtiva);
+          const slides = gerarSlides(itemAtual.blocos, undefined, itemAtual.marcaAguaAtiva, marcaAguaSvg);
           setCurrentSlide(slides[estadoSalvo.slideIndice - 1] || null);
         }
       } else {
         const primeiroItem = itens[0];
-        const slidesPrimeiroItem = gerarSlides(primeiroItem.blocos, undefined, primeiroItem.marcaAguaAtiva);
+        const slidesPrimeiroItem = gerarSlides(primeiroItem.blocos, undefined, primeiroItem.marcaAguaAtiva, marcaAguaSvg);
         const estadoInicial = criarEstadoInicial(primeiroItem.id, slidesPrimeiroItem.length);
         setProjectionState(estadoInicial);
         setCurrentSlide(slidesPrimeiroItem[0]);
@@ -115,47 +117,47 @@ export function useProjection({ roteiroId, itens }: UseProjectionProps) {
     if (projectionState && itens.length > 0) {
       const itemAtual = itens.find((item) => item.id === projectionState.itemRoteiroId);
       if (itemAtual) {
-        const slides = gerarSlides(itemAtual.blocos, undefined, itemAtual.marcaAguaAtiva);
+        const slides = gerarSlides(itemAtual.blocos, undefined, itemAtual.marcaAguaAtiva, marcaAguaSvg);
         const slideAtual = slides[projectionState.slideIndice - 1];
         setCurrentSlide(slideAtual || null);
       }
     }
-  }, [projectionState, itens]);
+  }, [projectionState, itens, marcaAguaSvg]);
 
   const navigateNext = useCallback(() => {
     if (projectionState && itens.length > 0) {
       const itensComSlide: Record<number, number> = {};
       itens.forEach((item) => {
-        itensComSlide[item.id] = gerarSlides(item.blocos, undefined, item.marcaAguaAtiva).length;
+        itensComSlide[item.id] = gerarSlides(item.blocos, undefined, item.marcaAguaAtiva, marcaAguaSvg).length;
       });
       const novoEstado = navegarParaProximo(projectionState, itensComSlide);
       setProjectionState(novoEstado);
       updateState(novoEstado);
       salvarEstadoLocalStorage(roteiroId, novoEstado);
     }
-  }, [projectionState, itens, updateState, roteiroId]);
+  }, [projectionState, itens, marcaAguaSvg, updateState, roteiroId]);
 
   const navigatePrev = useCallback(() => {
     if (projectionState && itens.length > 0) {
       const itensComSlide: Record<number, number> = {};
       itens.forEach((item) => {
-        itensComSlide[item.id] = gerarSlides(item.blocos, undefined, item.marcaAguaAtiva).length;
+        itensComSlide[item.id] = gerarSlides(item.blocos, undefined, item.marcaAguaAtiva, marcaAguaSvg).length;
       });
       const novoEstado = navegarParaAnterior(projectionState, itensComSlide);
       setProjectionState(novoEstado);
       updateState(novoEstado);
       salvarEstadoLocalStorage(roteiroId, novoEstado);
     }
-  }, [projectionState, itens, updateState, roteiroId]);
+  }, [projectionState, itens, marcaAguaSvg, updateState, roteiroId]);
 
   const jumpToItem = useCallback((itemRoteiroId: number) => {
     if (itens.length > 0) {
       const item = itens.find((i) => i.id === itemRoteiroId);
       if (item) {
-        const slides = gerarSlides(item.blocos, undefined, item.marcaAguaAtiva);
+        const slides = gerarSlides(item.blocos, undefined, item.marcaAguaAtiva, marcaAguaSvg);
         const novosItensComSlide: Record<number, number> = {};
         itens.forEach((i) => {
-          const s = gerarSlides(i.blocos, undefined, i.marcaAguaAtiva);
+          const s = gerarSlides(i.blocos, undefined, i.marcaAguaAtiva, marcaAguaSvg);
           novosItensComSlide[i.id] = s.length;
         });
         const novoEstado: ProjectionState = {
@@ -169,7 +171,7 @@ export function useProjection({ roteiroId, itens }: UseProjectionProps) {
         salvarEstadoLocalStorage(roteiroId, novoEstado);
       }
     }
-  }, [itens, updateState, roteiroId]);
+  }, [itens, marcaAguaSvg, updateState, roteiroId]);
 
   return {
     projectionState,

@@ -229,9 +229,13 @@ select { max-width: 180px; }
   font-size: 13px;
   font-weight: 800;
   letter-spacing: .15em;
-  text-transform: uppercase;
   position: absolute;
   top: 22px;
+}
+.slide-preview .watermark svg {
+  width: 80px;
+  height: auto;
+  max-height: 40px;
 }
 .slide-preview .slide-text {
   max-width: 550px;
@@ -467,7 +471,11 @@ select { max-width: 180px; }
   font-size: clamp(11px, 1.7vw, 20px);
   font-weight: 800;
   letter-spacing: .22em;
-  text-transform: uppercase;
+}
+.projector-watermark svg {
+  width: clamp(60px, 8vw, 120px);
+  height: auto;
+  max-height: 8vh;
 }
 .projector-page {
   position: fixed;

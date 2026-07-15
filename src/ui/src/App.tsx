@@ -6,6 +6,7 @@ import { RoteiroFormPage } from './pages/RoteiroFormPage'
 import { RoteiroEditorPage } from './pages/RoteiroEditorPage'
 import { PlayModePage } from './pages/PlayModePage'
 import { ProjectorPage } from './pages/ProjectorPage'
+import { MarcasDaguaPage } from './pages/MarcasDaguaPage'
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
       <Route path="/roteiros/:id/editar" element={<RoteiroFormPage />} />
       <Route path="/roteiros/:id/play" element={<PlayModePage />} />
       <Route path="/projetor/:roteiroId" element={<ProjectorPage />} />
+      <Route path="/marcas-dagua" element={<MarcasDaguaPage />} />
     </Routes>
   )
 }

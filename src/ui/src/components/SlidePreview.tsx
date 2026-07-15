@@ -5,6 +5,7 @@ interface Slide {
   indice: number;
   total: number;
   marcaAguaAtiva: boolean;
+  marcaAguaSvg?: string;
 }
 
 interface SlidePreviewProps {
@@ -18,13 +19,12 @@ export function SlidePreview({ slide }: SlidePreviewProps) {
         {slide.conteudo}
       </div>
       
-      {slide.marcaAguaAtiva && (
-        <div 
+      {slide.marcaAguaAtiva && slide.marcaAguaSvg && (
+        <div
           className="watermark"
           style={{ opacity: PROJECTION_DEFAULTS.WATERMARK_OPACITY }}
-        >
-          Marca d'Agua
-        </div>
+          dangerouslySetInnerHTML={{ __html: slide.marcaAguaSvg }}
+        />
       )}
       
       <div className="pagination">

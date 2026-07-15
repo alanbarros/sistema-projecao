@@ -94,3 +94,21 @@ export const CREATE_TABLE_ITEM_ROTEIRO_BLOCO = `
 export const CREATE_INDEX_ROTEIRO_BLOCO_ITEM = `
   CREATE INDEX IF NOT EXISTS idx_roteiro_bloco_item ON item_roteiro_bloco(item_roteiro_id)
 `;
+
+export const CREATE_TABLE_MARCA_DAGUA = `
+  CREATE TABLE IF NOT EXISTS marca_dagua (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    titulo TEXT NOT NULL,
+    conteudo_svg TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  )
+`;
+
+export const CREATE_INDEX_MARCA_DAGUA_TITULO = `
+  CREATE INDEX IF NOT EXISTS idx_marca_dagua_titulo ON marca_dagua(titulo)
+`;
+
+export const ALTER_TABLE_ROTEIRO_ADD_MARCA_DAGUA_ID = `
+  ALTER TABLE roteiro ADD COLUMN marca_dagua_id INTEGER REFERENCES marca_dagua(id) ON DELETE SET NULL
+`;
